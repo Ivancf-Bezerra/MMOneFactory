@@ -1,0 +1,287 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens (identidade Middleman / custódia) ─── */
+:root {
+  --mm-gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #2563eb 46%, #0e7490 100%);
+  --mm-gradient-primary-hover: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 44%, #06b6d4 100%);
+  --mm-shadow-brand: 0 4px 18px rgba(37, 99, 235, 0.34);
+  --mm-shadow-brand-hover: 0 8px 28px rgba(37, 99, 235, 0.42);
+  --mm-radius-btn: 0.625rem;
+}
+
+/* ── Base ─────────────────────────────────────────────── */
+html,
+body {
+  @apply min-h-full text-slate-900;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply m-0 antialiased;
+  background-color: #e8eef5;
+  background-image:
+    theme('backgroundImage.brand-mesh'),
+    linear-gradient(180deg, #f0f7fc 0%, #e8eef5 35%, #e2e8f0 100%);
+}
+
+/* ── Component layer ──────────────────────────────────── */
+@layer components {
+  /* Painéis / Cards */
+  .glass-panel {
+    @apply rounded-xl border border-slate-200/90 shadow-sm;
+    background: linear-gradient(165deg, #ffffff 0%, #fafbfd 45%, #f4f6f9 100%);
+    box-shadow:
+      theme('boxShadow.card'),
+      0 12px 40px -20px rgba(30, 58, 138, 0.12);
+  }
+
+  /**
+   * Botão primário — gradiente índigo → azul → ciano, brilho discreto
+   */
+  .neon-button {
+    @apply relative inline-flex cursor-pointer items-center justify-center gap-1.5 overflow-hidden
+           px-4 py-2 text-sm font-semibold text-white no-underline;
+    border-radius: var(--mm-radius-btn);
+    background: var(--mm-gradient-primary);
+    box-shadow:
+      var(--mm-shadow-brand),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      filter 0.18s ease;
+  }
+
+  .neon-button:hover:not(:disabled) {
+    background: var(--mm-gradient-primary-hover);
+    box-shadow:
+      var(--mm-shadow-brand-hover),
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  .neon-button:active:not(:disabled) {
+    transform: translateY(0);
+    filter: brightness(0.96);
+  }
+
+  .neon-button:disabled {
+    @apply cursor-not-allowed text-slate-500 shadow-none;
+    background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+    box-shadow: none;
+    transform: none;
+    filter: none;
+  }
+
+  /**
+   * Botão secundário — volume suave + borda com leve brilho azul ao hover
+   */
+  .btn-ghost {
+    @apply relative inline-flex cursor-pointer items-center justify-center gap-1.5
+           px-4 py-2 text-sm font-medium text-slate-700;
+    border-radius: var(--mm-radius-btn);
+    border: 1px solid #cbd5e1;
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .btn-ghost:hover {
+    @apply text-slate-900;
+    border-color: #93c5fd;
+    background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+    box-shadow:
+      0 4px 16px rgba(37, 99, 235, 0.12),
+      0 0 0 1px rgba(37, 99, 235, 0.06) inset;
+    transform: translateY(-0.5px);
+  }
+
+  .btn-ghost:active {
+    transform: translateY(0);
+    background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  }
+
+  /**
+   * CTAs em largura total (mesma identidade do primário)
+   */
+  .mm-btn-block {
+    @apply relative inline-flex w-full items-center justify-center px-4 py-2 text-xs font-semibold text-white;
+    border-radius: var(--mm-radius-btn);
+    background: var(--mm-gradient-primary);
+    box-shadow: var(--mm-shadow-brand), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      filter 0.18s ease;
+  }
+
+  .mm-btn-block:hover:not(:disabled) {
+    background: var(--mm-gradient-primary-hover);
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: var(--mm-shadow-brand-hover), 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  }
+
+  .mm-btn-block:active:not(:disabled) {
+    transform: translateY(0);
+    filter: brightness(0.97);
+  }
+
+  .mm-btn-block:disabled {
+    @apply cursor-not-allowed text-slate-500;
+    background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+    box-shadow: none;
+    transform: none;
+  }
+
+  /** Destaque suave (ex.: confirmar leitura QR) */
+  .mm-btn-soft {
+    @apply relative inline-flex w-full cursor-pointer items-center justify-center px-3 py-2 text-xs font-semibold text-slate-900;
+    border-radius: var(--mm-radius-btn);
+    background: linear-gradient(135deg, #dbeafe 0%, #cffafe 45%, #e0e7ff 100%);
+    border: 1px solid rgba(14, 116, 144, 0.45);
+    box-shadow:
+      0 2px 10px rgba(14, 116, 144, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .mm-btn-soft:hover:not(:disabled) {
+    filter: brightness(1.04);
+    transform: translateY(-1px);
+    box-shadow:
+      0 4px 16px rgba(14, 116, 144, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.45) inset;
+  }
+
+  .mm-btn-soft:disabled {
+    @apply cursor-not-allowed opacity-50;
+    transform: none;
+  }
+
+  /** Sucesso / encerramento */
+  .mm-btn-success {
+    @apply relative inline-flex cursor-pointer items-center justify-center px-4 py-2 text-xs font-semibold text-white no-underline;
+    border-radius: var(--mm-radius-btn);
+    background: linear-gradient(135deg, #14532d 0%, #16a34a 42%, #0f766e 100%);
+    box-shadow:
+      0 4px 16px rgba(22, 163, 74, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .mm-btn-success:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 22px rgba(22, 163, 74, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  }
+
+  /* ── Inputs ──────────────────────────────────────────── */
+
+  .input-base {
+    @apply w-full rounded-md border border-slate-300 bg-white
+           px-3 py-2 text-sm text-slate-900
+           placeholder:text-slate-400
+           outline-none transition
+           focus:border-blue-500 focus:ring-2 focus:ring-cyan-100
+           disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400;
+  }
+
+  .input-flat {
+    @apply w-full rounded-md border border-transparent bg-slate-100
+           px-3 py-2 text-sm text-slate-900
+           placeholder:text-slate-400
+           outline-none transition
+           focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-cyan-100
+           disabled:cursor-not-allowed disabled:text-slate-400;
+  }
+
+  .input-ghost {
+    @apply w-full border-0 border-b border-slate-300 bg-transparent
+           px-1 py-1.5 text-sm text-slate-900
+           placeholder:text-slate-400
+           outline-none transition
+           disabled:cursor-not-allowed disabled:text-slate-400;
+  }
+
+  .input-ghost:focus {
+    border-bottom-color: #2563eb;
+    box-shadow: 0 1px 0 0 rgba(37, 99, 235, 0.65);
+    background: linear-gradient(180deg, transparent 0%, rgba(239, 246, 255, 0.5) 100%);
+  }
+
+  .input-error {
+    @apply border-red-400 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-100;
+  }
+
+  .hud-chip {
+    @apply rounded-md px-2.5 py-0.5 text-xs font-semibold;
+    background: linear-gradient(135deg, #dbeafe 0%, #cffafe 55%, #e0e7ff 100%);
+    border: 1px solid rgba(14, 116, 144, 0.22);
+    color: #0e7490;
+    box-shadow: 0 1px 3px rgba(14, 116, 144, 0.08);
+  }
+
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-widest text-slate-400;
+  }
+
+  .mm-step-reveal {
+    animation: mm-step-reveal 0.38s ease-out;
+  }
+
+  .mm-step-flash {
+    animation: mm-step-flash 0.65s ease-out;
+  }
+
+  .mm-help-btn {
+    @apply inline-flex h-4 min-w-[1rem] shrink-0 cursor-help items-center justify-center rounded px-0.5 text-[11px] font-normal leading-none text-slate-400 antialiased transition-colors duration-150 hover:text-slate-600 focus:outline-none focus-visible:text-slate-600 focus-visible:ring-1 focus-visible:ring-slate-300/80 focus-visible:ring-offset-1;
+  }
+
+  /* Badges de passo (create-transaction) */
+  .mm-step-badge {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white shadow-md;
+    background: linear-gradient(145deg, #312e81 0%, #2563eb 45%, #0d9488 100%);
+    box-shadow:
+      0 3px 10px rgba(37, 99, 235, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+  }
+}
+
+@keyframes mm-step-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mm-step-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+  35% {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}

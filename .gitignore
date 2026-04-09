@@ -1,0 +1,27 @@
+# Dependencies
+**/node_modules/
+
+# Build / cache
+**/dist/
+**/tmp/
+**/out-tsc/
+**/.angular/cache
+**/coverage/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+.history/
+
+# OS
+.DS_Store
+Thumbs.db
