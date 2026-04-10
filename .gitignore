@@ -1,18 +1,10 @@
 # Raiz: nao versionar pastas de documentacao ou outros modulos
 /MMAPP/
-/docs/
 /frontend_sdd_middleman_angular.md
+# docs/ na raiz = site estatico para GitHub Pages (gerado por npm run build:github-pages:docs) — NAO ignorar
 
-# MMSITE: ignorar tudo exceto a arvore dist/mmsite (artefacto ng build)
+# MMSITE: versionar apenas o build estatico (deploy Render/CDN)
+# Padrao: ignorar tudo em MMSITE e, em seguida, incluir so dist/mmsite/**
 /MMSITE/*
 !/MMSITE/dist/
-/MMSITE/dist/*
-!/MMSITE/dist/mmsite/
-/MMSITE/dist/mmsite/*
-!/MMSITE/dist/mmsite/browser/
-/MMSITE/dist/mmsite/browser/*
-!/MMSITE/dist/mmsite/browser/**
-
-# Ficheiros na raiz do pacote de build (alem da pasta browser)
-!/MMSITE/dist/mmsite/3rdpartylicenses.txt
-!/MMSITE/dist/mmsite/prerendered-routes.json
+!/MMSITE/dist/**
