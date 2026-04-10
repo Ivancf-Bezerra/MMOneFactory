@@ -1,27 +1,18 @@
-# Dependencies
-**/node_modules/
+# Raiz: nao versionar pastas de documentacao ou outros modulos
+/MMAPP/
+/docs/
+/frontend_sdd_middleman_angular.md
 
-# Build / cache
-**/dist/
-**/tmp/
-**/out-tsc/
-**/.angular/cache
-**/coverage/
+# MMSITE: ignorar tudo exceto a arvore dist/mmsite (artefacto ng build)
+/MMSITE/*
+!/MMSITE/dist/
+/MMSITE/dist/*
+!/MMSITE/dist/mmsite/
+/MMSITE/dist/mmsite/*
+!/MMSITE/dist/mmsite/browser/
+/MMSITE/dist/mmsite/browser/*
+!/MMSITE/dist/mmsite/browser/**
 
-# Logs
-npm-debug.log*
-yarn-error.log*
-*.log
-
-# IDE
-.idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/tasks.json
-.history/
-
-# OS
-.DS_Store
-Thumbs.db
+# Ficheiros na raiz do pacote de build (alem da pasta browser)
+!/MMSITE/dist/mmsite/3rdpartylicenses.txt
+!/MMSITE/dist/mmsite/prerendered-routes.json
