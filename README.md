@@ -1,8 +1,6 @@
 # MMOneFactory
 
-O build de produção do Angular fica em **`MMSITE/dist/docs/`** (após `npm run build` ou `npm run build:github-pages` dentro de `MMSITE`).
-
-A pasta **`docs/`** na raiz do repositório é só para **documentação local** (não faz parte do fluxo de build e não deve receber cópia do site estático).
+O build de produção do Angular para **GitHub Pages** (pasta **`/docs`**) é gerado na raiz do repositório: **`docs/`** (após `npm run build:github-pages` dentro de `MMSITE`).
 
 ## Build para hospedagem estática
 
@@ -12,13 +10,13 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`MMSITE/dist/docs/`**. Este repositório **pode versionar** `MMSITE/dist/docs/` no Git para o teu pipeline publicar a partir daí (ex. **Render** com `render.yaml`, **Netlify**, **GitHub Actions** que copie ou publique essa pasta).
+O output para deploy está em **`docs/`** na raiz (commitável no Git).
 
-**Nota:** no GitHub, **Pages** com *Deploy from a branch* só serve ficheiros na **raiz** (`/`) ou em **`/docs`** na raiz do repositório — **não** há opção para servir diretamente `MMSITE/dist/docs/` por esse mecanismo. Para `github.io` sem Actions, costuma-se copiar o build para a raiz ou para `docs/`, ou usar **GitHub Actions**.
+**GitHub Pages:** em *Settings → Pages*, escolhe a branch (ex. `main`) e pasta **`/docs`**.
 
-Ficheiros de build na **raiz** do repo (chunks, `index.html`, etc.) **não** devem ser commitados; estão bloqueados no `.gitignore`.
+**Render / Netlify / outros:** aponta o publish para **`./docs`** (ver `render.yaml`).
 
-Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages`.
+Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages` para o site em `usuario.github.io/NomeDoRepo/`.
 
 ### Rotas em hospedagem estática (ex.: `github.io`)
 
@@ -28,5 +26,7 @@ O build `build:github-pages` usa **`--base-href ./`** para os ficheiros JS/CSS c
 
 ## Outros
 
-- **Render:** se existir `render.yaml` na raiz do projeto (e estiver no Git), define `staticPublishPath` para `./MMSITE/dist/docs`.
+- **Render:** `render.yaml` usa `staticPublishPath: ./docs`.
 - **Comportamento:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
+
+Ficheiros de build na **raiz** do repo (fora de `docs/`) **não** devem ser commitados; estão bloqueados no `.gitignore`.

@@ -1,10 +1,10 @@
-# Blueprint Render: publica o build Angular ja commitado em git (MMSITE/dist/docs/).
+# Blueprint Render: publica o build Angular ja commitado em git (docs/ na raiz).
 # Se no futuro o repositorio incluir o codigo MMSITE/, troque para rootDir: MMSITE + buildCommand.
 services:
   - type: web
     name: mmsite
     runtime: static
-    staticPublishPath: ./MMSITE/dist/docs
+    staticPublishPath: ./docs
     routes:
       - type: rewrite
         source: /*
