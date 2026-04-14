@@ -8,6 +8,7 @@
     "start:test": "ng serve --configuration test",
     "build": "ng build",
     "build:github-pages": "ng build --configuration production --base-href ./ && node scripts/copy-gh-pages-404.cjs",
+    "build:github-pages:root": "npm run build:github-pages && node ../scripts/sync-github-pages-root.cjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
