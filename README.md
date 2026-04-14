@@ -12,7 +12,7 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`MMSITE/dist/`** (Render, Netlify, GitHub Actions, etc.). O repositório **não** versiona a pasta `dist` nem ficheiros de build na raiz.
+O output para deploy está em **`MMSITE/dist/`**. A pasta **`MMSITE/dist/`** pode ser **commitada** para o GitHub (deploy estático, ex. GitHub Actions ou Pages a partir dessa pasta). Ficheiros de build na **raiz** do repo não são versionados (ver `.gitignore`).
 
 Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages`.
 
