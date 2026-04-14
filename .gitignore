@@ -1,5 +1,6 @@
 # Raiz: nao versionar pastas de documentacao ou outros modulos
 /MMAPP/
+# SDD / doc local (não versionar)
 /frontend_sdd_middleman_angular.md
 # Documentacao local na raiz — nao versionar (nao incluir build do Angular aqui)
 /docs/
