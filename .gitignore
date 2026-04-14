@@ -1,7 +1,8 @@
 # Raiz: nao versionar pastas de documentacao ou outros modulos
 /MMAPP/
 /frontend_sdd_middleman_angular.md
-# docs/ na raiz = site estatico para GitHub Pages (gerado por npm run build:github-pages:docs) — NAO ignorar
+# Documentacao local — nao versionar
+/docs/
 
 # MMSITE: versionar apenas o build estatico (deploy Render/CDN)
 # Padrao: ignorar tudo em MMSITE e, em seguida, incluir so dist/mmsite/**
