@@ -12,7 +12,11 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`MMSITE/dist/`**. A pasta **`MMSITE/dist/`** pode ser **commitada** para o GitHub (deploy estático, ex. GitHub Actions ou Pages a partir dessa pasta). Ficheiros de build na **raiz** do repo não são versionados (ver `.gitignore`).
+O output para deploy está em **`MMSITE/dist/`**. Este repositório **pode versionar** `MMSITE/dist/` no Git para o teu pipeline publicar a partir daí (ex. **Render** com `render.yaml`, **Netlify**, **GitHub Actions** que copie ou publique essa pasta).
+
+**Nota:** no GitHub, **Pages** com *Deploy from a branch* só serve ficheiros na **raiz** (`/`) ou em **`/docs`** — **não** há opção para servir diretamente `MMSITE/dist/` por esse mecanismo. Para `github.io` sem Actions, costuma-se copiar o build para a raiz ou para `docs/`, ou usar **GitHub Actions**.
+
+Ficheiros de build na **raiz** do repo (chunks, `index.html`, etc.) **não** devem ser commitados; estão bloqueados no `.gitignore`.
 
 Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages`.
 
@@ -24,5 +28,5 @@ O build `build:github-pages` usa **`--base-href ./`** para os ficheiros JS/CSS c
 
 ## Outros
 
-- **Render:** ver `render.yaml` na raiz.
+- **Render:** se existir `render.yaml` na raiz do projeto (e estiver no Git), define `staticPublishPath` para `./MMSITE/dist`.
 - **Comportamento:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
