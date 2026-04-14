@@ -1,11 +1,11 @@
 # Raiz: nao versionar pastas de documentacao ou outros modulos
 /MMAPP/
 /frontend_sdd_middleman_angular.md
-# Documentacao local — nao versionar
-/docs/
+# GitHub Pages: ficheiros estáticos em docs/ (index.html, chunks). Markdown local em docs/ nao versionar.
+/docs/*.md
 
-# MMSITE: versionar apenas o build estatico (deploy Render/CDN)
-# Padrao: ignorar tudo em MMSITE e, em seguida, incluir so dist/mmsite/**
+# MMSITE: ignorar codigo-fonte; versionar package.json (scripts) e dist/**
 /MMSITE/*
+!/MMSITE/package.json
 !/MMSITE/dist/
 !/MMSITE/dist/**
