@@ -18,9 +18,12 @@
 /prerendered-routes.json
 /_redirects
 
-# MMSITE: ignorar codigo-fonte; versionar package.json, .gitignore e dist (deploy)
+# MMSITE: ignorar codigo-fonte; versionar config de build, scripts e dist (deploy)
 /MMSITE/*
 !/MMSITE/package.json
+!/MMSITE/angular.json
 !/MMSITE/.gitignore
+!/MMSITE/scripts/
+!/MMSITE/scripts/**
 !/MMSITE/dist/
 !/MMSITE/dist/**

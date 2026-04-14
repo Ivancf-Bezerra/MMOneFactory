@@ -1,6 +1,6 @@
 # MMOneFactory
 
-O build de produção do Angular fica em **`MMSITE/dist/`** (após `npm run build` ou `npm run build:github-pages` dentro de `MMSITE`).
+O build de produção do Angular fica em **`MMSITE/dist/docs/`** (após `npm run build` ou `npm run build:github-pages` dentro de `MMSITE`).
 
 A pasta **`docs/`** na raiz do repositório é só para **documentação local** (não faz parte do fluxo de build e não deve receber cópia do site estático).
 
@@ -12,9 +12,9 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`MMSITE/dist/`**. Este repositório **pode versionar** `MMSITE/dist/` no Git para o teu pipeline publicar a partir daí (ex. **Render** com `render.yaml`, **Netlify**, **GitHub Actions** que copie ou publique essa pasta).
+O output para deploy está em **`MMSITE/dist/docs/`**. Este repositório **pode versionar** `MMSITE/dist/docs/` no Git para o teu pipeline publicar a partir daí (ex. **Render** com `render.yaml`, **Netlify**, **GitHub Actions** que copie ou publique essa pasta).
 
-**Nota:** no GitHub, **Pages** com *Deploy from a branch* só serve ficheiros na **raiz** (`/`) ou em **`/docs`** — **não** há opção para servir diretamente `MMSITE/dist/` por esse mecanismo. Para `github.io` sem Actions, costuma-se copiar o build para a raiz ou para `docs/`, ou usar **GitHub Actions**.
+**Nota:** no GitHub, **Pages** com *Deploy from a branch* só serve ficheiros na **raiz** (`/`) ou em **`/docs`** na raiz do repositório — **não** há opção para servir diretamente `MMSITE/dist/docs/` por esse mecanismo. Para `github.io` sem Actions, costuma-se copiar o build para a raiz ou para `docs/`, ou usar **GitHub Actions**.
 
 Ficheiros de build na **raiz** do repo (chunks, `index.html`, etc.) **não** devem ser commitados; estão bloqueados no `.gitignore`.
 
@@ -28,5 +28,5 @@ O build `build:github-pages` usa **`--base-href ./`** para os ficheiros JS/CSS c
 
 ## Outros
 
-- **Render:** se existir `render.yaml` na raiz do projeto (e estiver no Git), define `staticPublishPath` para `./MMSITE/dist`.
+- **Render:** se existir `render.yaml` na raiz do projeto (e estiver no Git), define `staticPublishPath` para `./MMSITE/dist/docs`.
 - **Comportamento:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
