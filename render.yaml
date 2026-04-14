@@ -1,5 +1,4 @@
-# Blueprint Render: publica o build Angular ja commitado em git (docs/ na raiz).
-# Se no futuro o repositorio incluir o codigo MMSITE/, troque para rootDir: MMSITE + buildCommand.
+# Blueprint Render: site estático em docs/ (build Angular gerado fora deste repo).
 services:
   - type: web
     name: mmsite

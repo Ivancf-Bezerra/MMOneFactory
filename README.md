@@ -1,8 +1,12 @@
 # MMOneFactory
 
-O build de produção do Angular para **GitHub Pages** (pasta **`/docs`**) é gerado na raiz do repositório: **`docs/`** (após `npm run build:github-pages` dentro de `MMSITE`).
+Este repositório publica o site estático em **`docs/`** (GitHub Pages: pasta **`/docs`**, branch `main`).
 
-## Build para hospedagem estática
+O **código-fonte Angular** (`MMSITE/`) **não** está versionado aqui; mantém-se apenas localmente ou noutro repositório.
+
+## Gerar `docs/` a partir do projeto Angular local
+
+Na pasta do projeto Angular (ex. `MMSITE` no teu disco):
 
 ```bash
 cd MMSITE
@@ -10,23 +14,18 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`docs/`** na raiz (commitável no Git).
+O comando de build deve escrever o output na pasta **`docs/` na raiz deste repositório** (configuração em `angular.json`: `outputPath` com `../docs`). Depois faz commit e push de `docs/` neste repo.
 
-**GitHub Pages:** em *Settings → Pages*, escolhe a branch (ex. `main`) e pasta **`/docs`**.
+**Render / Netlify:** `render.yaml` usa `staticPublishPath: ./docs`.
 
-**Render / Netlify / outros:** aponta o publish para **`./docs`** (ver `render.yaml`).
-
-Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages` para o site em `usuario.github.io/NomeDoRepo/`.
+Se o repositório **não** se chamar `MMOneFactory`, ajusta no `package.json` do projeto Angular o `--base-href /NomeDoRepo/` no script `build:github-pages` para `usuario.github.io/NomeDoRepo/`.
 
 ### Rotas em hospedagem estática (ex.: `github.io`)
 
-Em subpastas de domínio estático a app pode usar **rotas com hash** (`#/login`, `#/transaction/...`) para o servidor não devolver 404 ao recarregar. Em `localhost` ou outros hosts as rotas podem continuar **sem** hash.
-
-O build `build:github-pages` usa **`--base-href ./`** para os ficheiros JS/CSS carregarem bem em qualquer caminho base.
+Em subpastas de domínio estático a app pode usar **rotas com hash** (`#/login`, `#/transaction/...`) para o servidor não devolver 404 ao recarregar.
 
 ## Outros
 
-- **Render:** `render.yaml` usa `staticPublishPath: ./docs`.
-- **Comportamento:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
+- **Comportamento da app:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
 
 Ficheiros de build na **raiz** do repo (fora de `docs/`) **não** devem ser commitados; estão bloqueados no `.gitignore`.
