@@ -1,8 +1,7 @@
 # Raiz: nao versionar pastas de documentacao ou outros modulos
 /MMAPP/
-# SDD / doc local (não versionar)
-/frontend_sdd_middleman_angular.md
 # docs/ na raiz = site estático para GitHub Pages (versionado)
+# Documentação Markdown do projeto: .cursor/docs/
 
 # Build Angular copiado por engano para a raiz do repo
 /chunk-*.js
