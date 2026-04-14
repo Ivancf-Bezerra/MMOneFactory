@@ -4,8 +4,19 @@
 # Documentacao local na raiz — nao versionar (nao incluir build do Angular aqui)
 /docs/
 
-# MMSITE: ignorar codigo-fonte; versionar package.json (scripts) e dist/**
+# Build Angular copiado por engano para a raiz do repo
+/chunk-*.js
+/main-*.js
+/polyfills-*.js
+/styles-*.css
+/index.html
+/404.html
+/favicon.ico
+/.nojekyll
+/3rdpartylicenses.txt
+/prerendered-routes.json
+/_redirects
+
+# MMSITE: ignorar codigo-fonte e build; versionar só package.json (scripts)
 /MMSITE/*
 !/MMSITE/package.json
-!/MMSITE/dist/
-!/MMSITE/dist/**

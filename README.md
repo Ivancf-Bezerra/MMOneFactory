@@ -12,24 +12,7 @@ npm ci
 npm run build:github-pages
 ```
 
-O output para deploy está em **`MMSITE/dist/`** (Render, Netlify, etc.).
-
-### GitHub Pages na **raiz** do repositório (`/`)
-
-Para publicar o site na **raiz do branch** (Settings → Pages → pasta **/ (root)**):
-
-```bash
-cd MMSITE
-npm ci
-npm run build:github-pages:root
-cd ..
-git add -A
-git status
-git commit -m "deploy: GitHub Pages na raiz"
-git push
-```
-
-Isto gera o build e copia `MMSITE/dist/*` para a **raiz do repositório** (`index.html`, chunks, `.nojekyll`, etc.), sem usar a pasta `docs/`.
+O output para deploy está em **`MMSITE/dist/`** (Render, Netlify, GitHub Actions, etc.). O repositório **não** versiona a pasta `dist` nem ficheiros de build na raiz.
 
 Se o repositório **não** se chamar `MMOneFactory`, ajuste em `MMSITE/package.json` o `--base-href /NomeDoRepo/` no script `build:github-pages`.
 
