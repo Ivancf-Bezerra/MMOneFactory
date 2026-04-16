@@ -1,0 +1,1 @@
+import{a as n,b as e}from"./chunk-O5COVCFI.js";import{K as i,O as a}from"./chunk-HVXUJUCN.js";var s=class t{api=a(e);list(o){let r=o?`?status=${encodeURIComponent(o)}`:"";return this.api.get(`${n.transactions.list}${r}`)}static \u0275fac=function(r){return new(r||t)};static \u0275prov=i({token:t,factory:t.\u0275fac,providedIn:"root"})};export{s as a};
