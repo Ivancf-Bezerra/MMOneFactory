@@ -51,6 +51,50 @@ O `MMSITE` implementa a experiência web da plataforma Middleman:
 - Node.js 20+ (recomendado)
 - npm 10+ (recomendado)
 
+### 6) Contratos e endpoints
+
+Base da API: `/api/v1`
+
+#### Auth (MMSITE -> MMAPI)
+- `POST /auth/register`
+  - Request: `{ name, email, password }`
+  - Response: `{ accessToken, user: { name, email } }`
+- `POST /auth/login`
+  - Request: `{ email, password }`
+  - Response: `{ accessToken, user: { name, email } }`
+- `POST /auth/google`
+  - Request: `{ idToken? }`
+  - Response: `{ accessToken, user: { name, email } }`
+- `GET /auth/me` (**contrato previsto no frontend; ainda nao implementado no MMAPI**)
+
+#### Transactions (MMAPI implementado)
+- `GET /transactions?status=<pending|paid|completed|dispute>`
+  - Lista transacoes para dashboard.
+- `POST /transactions`
+  - Request: `{ title, amount, currency, side }`
+  - Response: `{ transactionId, inviteToken, participantId, role, snapshot }`
+- `POST /transactions/join`
+  - Request: `{ inviteToken }`
+  - Response: `{ transactionId, participantId, role, snapshot }`
+- `GET /transactions/{id}`
+- `POST /transactions/{id}/confirm-ticket`
+- `POST /transactions/{id}/simulate-payment`
+- `POST /transactions/{id}/simulate-delivery`
+- `POST /transactions/{id}/confirm-release`
+
+> Para `GET /transactions/{id}` e todos os `POST /transactions/{id}/*`, o backend exige header:
+> `X-Participant-Id: <guid>`
+
+#### Negotiations / Users (contratos do frontend, pendentes no MMAPI)
+- `GET /negotiations/inbox?q=...`
+  - Response esperado: `NegotiationThread[]`
+- `GET /negotiations/dashboard-search?q=...`
+  - Response esperado: `{ threads: NegotiationThread[], directoryUsers: PublicUserProfile[] }`
+- `GET /users/{userId}/public-profile`
+  - Response esperado: `PublicUserProfile`
+- `GET /users/directory-verified?q=...`
+  - Response esperado: `PublicUserProfile[]` (somente utilizadores verificados)
+
 ## Build e publicação (somente MMSITE + docs)
 
 ### Build de produção para GitHub Pages
