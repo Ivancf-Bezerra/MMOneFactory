@@ -43,20 +43,20 @@ import {
     LucideUserCheck,
   ],
   template: `
-    <section class="mm-page-shell space-y-4">
-      <header class="flex flex-wrap items-center justify-between gap-2">
-        <div>
+    <section class="mm-page-shell min-w-0 space-y-5">
+      <header class="mm-page-header">
+        <div class="min-w-0 space-y-1.5">
           <h1 class="mm-page-h1">Transações</h1>
-          <p class="mt-0.5 mm-page-lead">
-            Pesquise negociações existentes ou utilizadores com quem ainda não abriu ticket — pode ver o perfil público antes de combinar.
+          <p class="mm-page-lead">
+            Encontre negociações antigas ou pessoas com quem você ainda não negociou. Dá para ver o perfil público antes de fechar acordo.
           </p>
         </div>
-        <a routerLink="/transaction/create" class="neon-button px-3 py-1.5 text-xs">+ Nova transação</a>
+        <a routerLink="/transaction/create" class="neon-button shrink-0 px-3 py-1.5 text-xs">+ Nova transação</a>
       </header>
 
       <!-- KPIs (API / store) -->
-      <div class="flex flex-wrap gap-2 sm:gap-3">
-        <article class="glass-panel flex items-center gap-2 px-2.5 py-2 sm:min-w-0 sm:flex-1">
+      <div class="flex flex-wrap gap-3 sm:gap-4">
+        <article class="glass-panel flex min-w-0 items-center gap-2.5 px-3 py-2.5 sm:flex-1">
           <div class="flex size-7 shrink-0 items-center justify-center rounded-mm bg-mm-surface text-mm-purple">
             <svg lucideClipboardList class="h-4 w-4 shrink-0" aria-hidden="true" />
           </div>
@@ -69,7 +69,7 @@ import {
             }
           </div>
         </article>
-        <article class="glass-panel flex items-center gap-2 px-2.5 py-2 sm:min-w-0 sm:flex-1">
+        <article class="glass-panel flex min-w-0 items-center gap-2.5 px-3 py-2.5 sm:flex-1">
           <div class="flex size-7 shrink-0 items-center justify-center rounded-mm bg-mm-surface text-mm-purple">
             <svg lucideLock class="h-4 w-4 shrink-0" aria-hidden="true" />
           </div>
@@ -82,7 +82,7 @@ import {
             }
           </div>
         </article>
-        <article class="glass-panel flex items-center gap-2 px-2.5 py-2 sm:min-w-0 sm:flex-1">
+        <article class="glass-panel flex min-w-0 items-center gap-2.5 px-3 py-2.5 sm:flex-1">
           <div class="flex size-7 shrink-0 items-center justify-center rounded-mm bg-red-50 text-red-500">
             <svg lucideFlag class="h-4 w-4 shrink-0" aria-hidden="true" />
           </div>
@@ -104,7 +104,7 @@ import {
       }
 
       <!-- Lista estilo conversas (mock local / API futura) -->
-      <div class="glass-panel flex items-center gap-2 px-3 py-2 sm:px-4">
+      <div class="glass-panel flex items-center gap-3 px-3 py-2.5 sm:px-4">
         <span class="grid h-9 w-9 shrink-0 place-content-center rounded-mm bg-mm-surface text-mm-purple">
           <svg lucideSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
         </span>
@@ -113,7 +113,7 @@ import {
           <input
             type="search"
             class="input-flat w-full text-sm"
-            placeholder="Negociações: título, ID, mensagem… · Novos contactos: nome ou ID do utilizador (ex.: Elia, gabriela)"
+            placeholder="Negociações: título, ID ou trecho de mensagem · Novos contatos: nome ou ID do usuário (ex.: Elia, gabriela)"
             [formControl]="searchControl"
             autocomplete="off"
           />
@@ -122,14 +122,14 @@ import {
 
       @if (dashboard$ | async; as dash) {
         @if (dash.threads.length > 0) {
-          <div class="space-y-1.5">
+          <div class="space-y-2">
             <p class="px-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
               Suas negociações · {{ dash.threads.length }}
               {{ dash.threads.length === 1 ? 'resultado' : 'resultados' }}
             </p>
             @for (thread of dash.threads; track thread.transactionId) {
               <article
-                class="glass-panel flex flex-col gap-2 px-2 py-2.5 sm:flex-row sm:items-stretch sm:gap-3 sm:px-3"
+                class="glass-panel flex flex-col gap-2.5 px-2.5 py-3 sm:flex-row sm:items-stretch sm:gap-4 sm:px-3"
               >
                 <div
                   class="hidden w-1 shrink-0 self-stretch rounded-full sm:block"
@@ -223,7 +223,7 @@ import {
         @if (dash.directoryUsers.length > 0) {
           <div class="space-y-2 pt-1">
             <p class="px-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Ainda sem negociação contigo — verifique o perfil antes de combinar ·
+              Ainda sem negociação com você — confira o perfil antes de combinar ·
               {{ dash.directoryUsers.length }}
               {{ dash.directoryUsers.length === 1 ? 'pessoa' : 'pessoas' }}
             </p>
@@ -290,7 +290,7 @@ import {
               @if (searchControl.value.trim()) {
                 Tente outro termo ou crie uma nova transação.
               } @else {
-                Quando existir movimento, aparece aqui. Experimente buscar por nome para encontrar novos contactos.
+                Quando houver movimento, aparece aqui. Busque por nome para achar pessoas novas.
               }
             </p>
             <a routerLink="/transaction/create" class="neon-button mt-3 inline-flex px-3 py-1.5 text-xs">
@@ -364,8 +364,8 @@ import {
                 </div>
               </div>
               <p class="mt-4 text-xs leading-relaxed text-slate-500">
-                Dados sensíveis (CPF, documentos) não são exibidos. Em produção, este painel reflete o que a API
-                autorizar para a sua conta.
+                Dados sensíveis (CPF, documentos) não aparecem aqui. Em produção, o painel mostra só o que a API
+                liberar para a sua conta.
               </p>
             } @else if (!profileLoading && !profileDetail) {
               <p class="mt-3 text-sm text-slate-600">Não foi possível carregar este perfil.</p>

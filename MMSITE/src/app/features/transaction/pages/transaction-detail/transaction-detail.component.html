@@ -1,19 +1,19 @@
 ﻿<section
-  class="mm-page-shell flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden px-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:gap-3 sm:px-4 sm:pb-3 lg:flex-row lg:items-stretch lg:justify-center lg:gap-6"
+  class="mm-page-shell flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-x-hidden pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:pb-4 lg:flex-row lg:items-stretch lg:justify-center lg:gap-6"
 >
   <div
-    class="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-4 max-sm:flex-none max-sm:min-h-0 lg:mx-0 lg:flex-1 lg:min-h-0 lg:max-w-7xl lg:flex-row lg:items-stretch lg:gap-6"
+    class="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-5 max-sm:flex-none max-sm:min-h-0 lg:mx-0 lg:flex-1 lg:min-h-0 lg:max-w-7xl lg:flex-row lg:items-stretch lg:gap-6"
   >
   <div
     class="glass-panel order-1 flex w-full min-w-0 flex-col max-sm:min-h-0 max-sm:overflow-visible lg:order-none lg:h-full lg:min-h-0 lg:flex-1 lg:overflow-hidden"
     [ngClass]="isFlowLocked() ? 'ring-2 ring-emerald-300/55' : ''"
   >
     <div
-      class="relative z-10 flex shrink-0 flex-col gap-1.5 border-b border-violet-100/80 bg-white/95 px-2 py-2 backdrop-blur-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-2 sm:px-3 sm:py-2.5"
+      class="relative z-10 flex shrink-0 flex-col gap-2.5 border-b border-violet-100/80 bg-white/95 px-3 py-2.5 backdrop-blur-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-3 sm:px-4 sm:py-2.5"
       role="toolbar"
       aria-label="Ações do chat"
     >
-      <div class="flex min-w-0 flex-row flex-nowrap items-stretch gap-1.5 sm:contents">
+      <div class="flex min-w-0 flex-row flex-nowrap items-stretch gap-2 sm:contents">
       <a
         routerLink="/transaction/create"
         class="inline-flex min-h-9 min-w-0 flex-1 basis-0 items-center justify-center rounded-mm border border-amber-300/80 bg-gradient-to-b from-amber-50/95 to-mm-surface/50 px-1.5 text-center text-[11px] font-semibold leading-tight text-mm-ink no-underline shadow-sm transition hover:brightness-[1.02] active:scale-[0.98] sm:flex-none sm:min-w-[5.5rem] sm:px-3 sm:text-xs"
@@ -58,31 +58,29 @@
       }
     </div>
 
-    <header class="relative z-0 flex shrink-0 flex-col gap-3 border-b border-violet-100/70 bg-gradient-to-r from-white via-mm-surface/40 to-white px-3 pb-3 pt-3 sm:gap-2 sm:px-4 sm:pb-2.5 sm:pt-2.5">
+    <header class="relative z-0 flex shrink-0 flex-col gap-3.5 border-b border-violet-100/70 bg-gradient-to-r from-white via-mm-surface/40 to-white px-4 pb-3.5 pt-3.5 sm:gap-3 sm:px-4 sm:pb-3 sm:pt-3">
       @if (inviteAccessBlocked) {
         <div
           class="rounded-mm border border-amber-300/90 bg-amber-50/95 px-3 py-2 text-[11px] leading-snug text-amber-950 shadow-sm"
           role="alert"
         >
-          <strong class="font-semibold">Convite inválido ou incompleto.</strong>
-          Só é possível continuar com o link completo (inclui o parâmetro de segurança). Não compartilhe prints da barra de endereço cortados; envie o link por WhatsApp, e-mail ou
-          “copiar link” na própria tela.
+          Acesso indisponível. Use o link completo recebido (não basta o endereço abreviado). Se precisar, copie o link nesta tela e envie por um canal que aceite URL completo.
         </div>
       }
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-2.5">
-        <div class="flex min-w-0 items-start gap-2.5">
+      <div class="flex flex-col gap-3.5 sm:flex-row sm:items-start sm:gap-4">
+        <div class="flex min-w-0 items-start gap-3">
         <div
           class="flex h-10 w-10 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xs font-bold text-white shadow-md"
           aria-hidden="true"
         >M</div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-            <h1 class="text-base font-semibold leading-tight text-mm-ink sm:text-lg">Seu espaço de negociação</h1>
+            <h1 class="text-base font-semibold leading-tight text-mm-ink sm:text-lg">Sala de negociação</h1>
             @if (isFlowLocked()) {
               <span class="hud-chip shrink-0 text-[9px] uppercase tracking-wide">Concluída</span>
             }
           </div>
-          <p class="mt-1 text-[11px] leading-relaxed text-slate-600 sm:mt-0.5 sm:text-xs">Acompanhe sua negociação em tempo real pelo chat.</p>
+          <p class="mt-1 text-[11px] leading-relaxed text-slate-600 sm:mt-0.5 sm:text-xs">Assistente e chat abaixo; resumo e estado no painel ao lado (em ecrãs pequenos, abaixo).</p>
         </div>
         </div>
         <div class="flex shrink-0 items-start self-start sm:self-auto">
@@ -110,12 +108,12 @@
               <div
                 class="w-full rounded-mm border-2 border-violet-200/90 bg-gradient-to-br from-white via-mm-surface/40 to-violet-50/90 px-3.5 py-3 shadow-[0_6px_22px_-8px_rgba(108,92,231,0.22),0_2px_10px_-4px_rgba(15,23,42,0.08)] ring-1 ring-inset ring-white/70 sm:px-4 sm:py-3.5"
               >
-                <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-mm-purple-dark">Resumo do pedido</p>
+                <p class="text-[10px] font-medium text-slate-500">Resumo</p>
                 <p class="mt-1.5 text-sm font-semibold leading-snug text-slate-900">{{ message.productCard.title }}</p>
                 <p class="mt-2 text-lg font-bold tabular-nums text-mm-purple-dark">{{ message.productCard.amountLabel }}</p>
                 <dl class="mt-3 space-y-2 text-[11px] leading-snug text-slate-700">
                   <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-violet-100/80 pt-2">
-                    <dt class="font-medium text-slate-500">Tipo de negócio</dt>
+                    <dt class="font-medium text-slate-500">Modalidade</dt>
                     <dd class="text-right font-semibold text-slate-800">{{ message.productCard.typeLabel }}</dd>
                   </div>
                   <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
@@ -132,7 +130,7 @@
                   </div>
                   @if (message.productCard.disputeWindowLine) {
                     <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-violet-100/80 pt-2">
-                      <dt class="font-medium text-slate-500">Proteção digital</dt>
+                      <dt class="font-medium text-slate-500">Prazo de contestação</dt>
                       <dd class="text-right font-semibold text-slate-800">{{ message.productCard.disputeWindowLine }}</dd>
                     </div>
                   }
@@ -147,8 +145,7 @@
                 role="article"
                 aria-label="Mensagem padrão ao abrir o chat"
               >
-                <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-amber-950/90">Ao abrir esta conversa</p>
-                <p class="mt-2 text-[10px] leading-relaxed text-slate-700">{{ message.text }}</p>
+                <p class="mt-0 text-xs leading-relaxed text-slate-700">{{ message.text }}</p>
                 <p class="mt-2.5 text-right text-[8px] tabular-nums text-amber-900/45">{{ message.time }}</p>
               </div>
             </div>
@@ -157,7 +154,7 @@
               <div
                 class="w-full min-w-0 max-w-[min(100%,24rem)] rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-2.5 shadow-sm sm:py-2"
               >
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
                 <p class="text-[13px] leading-snug text-slate-800">{{ message.text }}</p>
                 <p class="mt-1 text-right text-[10px] tabular-nums text-amber-900/50">{{ message.time }}</p>
               </div>
@@ -187,70 +184,94 @@
               <div
                 class="w-full min-w-0 max-w-[min(100%,28rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5"
               >
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
                 @if (isNegotiationHost) {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (quem abriu a negociação):</span>
-                    envie o link para a outra pessoa entrar nesta mesma tela como
-                    {{ transactionSide === 'sell' ? 'comprador' : 'vendedor' }}.
+                    Compartilhe o link para a outra parte abrir esta negociação como
+                    {{ transactionSide === 'sell' ? 'comprador' : 'vendedor' }}. Depois, avance com o botão no fim do bloco.
                   </p>
-                  <p class="text-xs text-slate-500">
-                    Use <span class="font-medium text-slate-600">Enviar link</span> ou o QR. Só quem criou a negociação precisa compartilhar o convite.
-                  </p>
-                  <button
-                    type="button"
-                    class="w-full rounded-mm border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:border-violet-300 hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-50"
-                    [disabled]="flowInteractionDisabled()"
-                    (click)="sendInviteLink()"
-                  >
-                    Enviar link
-                  </button>
-                  @if (showInviteQrPanel) {
-                    <div class="flex flex-col gap-2 rounded-mm border border-slate-200/90 bg-slate-50/90 p-3">
-                      @if (inviteQrDataUrl) {
-                        <img
-                          [src]="inviteQrDataUrl"
-                          alt="QR code com o link de acesso"
-                          class="mx-auto h-auto w-[min(100%,14rem)] rounded-lg border border-white bg-white p-1.5 shadow-sm sm:w-[min(100%,16rem)]"
-                          width="256"
-                          height="256"
-                        />
-                      } @else {
-                        <span
-                          class="mx-auto aspect-square w-[min(100%,14rem)] animate-pulse rounded-lg bg-slate-200 sm:w-[min(100%,16rem)]"
-                          aria-hidden="true"
-                        ></span>
-                      }
-                      <p class="text-center text-[11px] leading-relaxed text-slate-500">
-                        QR gerado nesta página. A outra parte escaneia para abrir o mesmo link.
-                      </p>
+                  <p class="text-xs text-slate-500">Cópia, envio partilhado e código curto estão no cartão abaixo.</p>
+                  <div class="flex flex-col gap-2 rounded-mm border border-slate-200/90 bg-slate-50/90 p-3">
+                    <div
+                      class="flex flex-wrap items-center justify-between gap-2 rounded-mm border border-slate-200/90 bg-white px-2 py-1.5"
+                    >
+                      <div class="min-w-0">
+                        <p class="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Código do convite</p>
+                        <div class="flex items-center gap-1.5">
+                          <p class="truncate text-xs font-bold tracking-[0.14em] text-mm-ink">{{ inviteShortCode || '—' }}</p>
+                          <button
+                            type="button"
+                            class="inline-flex items-center justify-center rounded border border-slate-200 p-1 text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            [disabled]="!inviteShortCode || flowInteractionDisabled()"
+                            (click)="copyInviteCode()"
+                            aria-label="Copiar código do convite"
+                            title="Copiar código"
+                          >
+                            <svg lucideCopy class="h-3 w-3 shrink-0" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <div>
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            [disabled]="flowInteractionDisabled()"
+                            (click)="copyInviteLink()"
+                          >
+                            <svg lucideCopy class="h-3 w-3 shrink-0" aria-hidden="true" />
+                            Copiar link
+                          </button>
+                        </div>
+                        <div>
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded border border-violet-200 bg-violet-50 px-2 py-1 text-[10px] font-semibold text-mm-purple-dark transition hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-50"
+                            [disabled]="flowInteractionDisabled()"
+                            (click)="shareInviteLink()"
+                          >
+                            <svg lucideSend class="h-3 w-3 shrink-0" aria-hidden="true" />
+                            Enviar link
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  }
+                    @if (showInviteQrPanel && inviteQrDataUrl) {
+                      <img
+                        [src]="inviteQrDataUrl"
+                        alt="QR code com o link de acesso"
+                        class="mx-auto h-auto w-[min(100%,14rem)] rounded-lg border border-white bg-white p-1.5 shadow-sm sm:w-[min(100%,16rem)]"
+                        width="256"
+                        height="256"
+                      />
+                    } @else {
+                      <span
+                        class="mx-auto aspect-square w-[min(100%,14rem)] animate-pulse rounded-lg bg-slate-200 sm:w-[min(100%,16rem)]"
+                        aria-hidden="true"
+                      ></span>
+                    }
+                    <p class="text-center text-[11px] leading-relaxed text-slate-500">A leitura abre o mesmo endereço no dispositivo da outra parte.</p>
+                  </div>
                   <button
                     type="button"
                     class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="flowInteractionDisabled()"
                     (click)="confirmTicketCreated()"
                   >
-                    Já enviei o convite — continuar
+                    Continuar após partilhar o convite
                   </button>
                 } @else {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (você entrou pelo convite):</span>
-                    você está nesta negociação como
-                    <span class="font-semibold">{{ transactionSide === 'buy' ? 'comprador' : 'vendedor' }}</span>.
-                    Quem abriu a negociação envia o link; aqui você só confirma que já está na mesma conversa.
+                    O seu papel nesta sessão é de {{ transactionSide === 'buy' ? 'comprador' : 'vendedor' }}. Confirme que entrou pela convite da outra parte e avance quando estiver alinhado.
                   </p>
-                  <p class="text-xs text-slate-500">
-                    Se ainda não recebeu o convite, peça o link completo à outra pessoa antes de seguir.
-                  </p>
+                  <p class="text-xs text-slate-500">Se faltar o acesso, peça o link completo antes de continuar.</p>
                   <button
                     type="button"
                     class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="flowInteractionDisabled()"
                     (click)="confirmTicketCreatedAsGuest()"
                   >
-                    Estou na negociação — continuar
+                    Confirmar entrada
                   </button>
                 }
               </div>
@@ -260,16 +281,14 @@
           @case ('ticket_confirmed') {
             <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
               <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
                 @if (transactionSide === 'buy') {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
-                    confira no resumo da transação (painel ao lado ou abaixo) tipo, entrega, seu papel e quem entra pelo link; na próxima etapa você paga com proteção.
+                    Verifique no painel ao lado valor, entrega e papéis. Em seguida abre-se o pagamento em custódia.
                   </p>
                 } @else {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
-                    confira no resumo da transação o que será entregue e como; depois o comprador paga na etapa seguinte e o fluxo segue até as confirmações finais.
+                    Confirme se o resumo reflete o combinado; depois o comprador segue para o pagamento protegido.
                   </p>
                 }
                 <button
@@ -278,7 +297,7 @@
                   [disabled]="flowInteractionDisabled()"
                   (click)="confirmTicketDetails()"
                 >
-                  {{ transactionSide === 'buy' ? 'Confiro como comprador — próximo' : 'Confiro como vendedor — próximo' }}
+                  {{ transactionSide === 'buy' ? 'Resumo conferido — seguir' : 'Resumo conferido — seguir' }}
                 </button>
               </div>
             </div>
@@ -287,16 +306,14 @@
           @case ('payment_escrow') {
             <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
               <div class="w-full min-w-0 max-w-[min(100%,24rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
                 @if (transactionSide === 'buy') {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
-                    escolha a forma de pagamento, gere o QR, conclua no app do banco ou da carteira e confirme aqui quando terminar.
+                    Escolha a forma de pagamento, gere o QR, conclua no app do banco ou da carteira e confirme aqui quando terminar.
                   </p>
                 } @else {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
-                    aguarde o comprador gerar o QR e pagar. Você vê o mesmo código aqui, mas
+                    Aguarde o comprador gerar o QR e pagar. Você vê o mesmo código aqui, mas
                     <span class="font-semibold">não</span>
                     escolhe método nem confirma o pagamento por ele.
                   </p>
@@ -348,7 +365,7 @@
                       [disabled]="paymentQrGenerating || flowInteractionDisabled()"
                       (click)="generateEscrowPaymentQr()"
                     >
-                      {{ paymentQrGenerating ? 'Gerando QR…' : 'Gerar QR para pagar aqui no chat' }}
+                      {{ paymentQrGenerating ? 'Gerando…' : 'Gerar código (QR) para pagar' }}
                     </button>
                   }
                   @if (paymentQrDataUrl) {
@@ -358,19 +375,17 @@
                       [disabled]="flowInteractionDisabled()"
                       (click)="confirmPaymentEscrow()"
                     >
-                      Já paguei — continuar
+                      Pagamento concluído — seguir
                     </button>
                   }
                 } @else {
-                  <p class="text-xs text-slate-600">
-                    Aguarde o comprador escolher a forma de pagamento. O QR aparecerá aqui para as duas partes acompanharem.
-                  </p>
+                  <p class="text-xs text-slate-600">O código surge neste painel após a escolha do comprador.</p>
                 }
 
                 @if (paymentQrDataUrl) {
                   <div class="rounded-mm border border-violet-100/90 bg-mm-surface/50 p-2.5 shadow-sm">
                     <p class="text-center text-[10px] font-medium text-slate-600">{{ escrowPaymentMethodLabel() }}</p>
-                    <img [src]="paymentQrDataUrl" alt="QR code para pagamento com dinheiro protegido na plataforma" class="mx-auto mt-1.5 size-40 rounded-lg bg-white p-1 shadow-sm" width="160" height="160" />
+                    <img [src]="paymentQrDataUrl" alt="Código QR para o pagamento em custódia" class="mx-auto mt-1.5 size-40 rounded-lg bg-white p-1 shadow-sm" width="160" height="160" />
                     <p class="mt-1.5 line-clamp-2 break-all font-mono text-[9px] text-slate-400">{{ paymentPayloadPreview() }}</p>
                   </div>
                   <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
@@ -389,7 +404,7 @@
                       (click)="openStepAttachmentPicker('payment_escrow')"
                     >
                       <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      {{ transactionSide === 'buy' ? 'Anexar comprovante de pagamento' : 'Anexar registro opcional' }}
+                      {{ transactionSide === 'buy' ? 'Anexar comprovante' : 'Anexar arquivo' }}
                     </button>
                   </div>
                 }
@@ -400,74 +415,79 @@
           @case ('delivery') {
             <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
               <div class="w-full min-w-0 max-w-[min(100%,24rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
 
                 @if (transactionSide === 'sell') {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
-                    @if (transactionType === 'digital') {
-                      registre que liberou o acesso digital; depois confirme “Tudo entregue” para seguir.
-                    } @else {
-                      gere o código de entrega. Só o comprador confirma o recebimento (leitura do código) na sessão dele.
-                    }
+                    Registre a entrega (texto, anexos ou código de confirmação). Você pode gerar o código para o comprador validar, ou concluir com "Tudo entregue" quando a sua parte estiver concluída.
                   </p>
-
-                  @if (transactionType === 'digital') {
-                    <p class="text-xs text-slate-500">Dica: tipo de prova, descrição curta e salvar. Depois “Tudo entregue”.</p>
-                    <p class="text-[11px] font-medium text-slate-700">Que tipo de registro?</p>
-                    <div class="flex flex-wrap gap-2">
-                      <button type="button" (click)="setEvidenceCategory('print')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('print')">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideCamera class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Print</p>
-                        <p class="line-clamp-1 font-normal text-slate-500">Tela ou log</p>
-                      </button>
-                      <button type="button" (click)="setEvidenceCategory('ownership')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('ownership')">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideKey class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Conta</p>
-                        <p class="line-clamp-1 font-normal text-slate-500">Titular</p>
-                      </button>
-                      <button type="button" (click)="setEvidenceCategory('other')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('other')">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucidePaperclip class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Outro</p>
-                        <p class="line-clamp-1 font-normal text-slate-500">Observação</p>
-                      </button>
-                    </div>
-                    <input type="text" placeholder="Ex.: print da tela de ativacao..." class="input-flat text-sm" [formControl]="evidenceControl" [class.input-error]="evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled" />
-                    @if (evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled) {
-                      <p class="text-xs text-red-600">Escreva pelo menos 4 caracteres.</p>
-                    }
-                    @if (evidencesForStep('delivery').length > 0) {
-                      <ul class="max-h-24 space-y-1 overflow-auto rounded-mm border border-slate-100 bg-slate-50/80 p-2 text-xs">
-                        @for (item of evidencesForStep('delivery'); track item.id) {
-                          <li><span class="font-medium">{{ item.title }}</span></li>
-                        }
-                      </ul>
-                    }
-                    <div class="flex flex-wrap gap-2">
-                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="addDigitalEvidence()" [class]="actionCardClass(!flowInteractionDisabled())">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideReceipt class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Salvar registro</p>
-                      </button>
-                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="confirmDigitalAccess()" [class]="primaryReleaseCardClass()">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideCheck class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Tudo entregue</p>
-                      </button>
-                    </div>
+                  <p class="text-xs text-slate-500">Escolha o tipo, descreva e salve; use a área de anexos para recibos ou capturas.</p>
+                  <p class="text-[11px] text-slate-600">Tipo de registro</p>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" (click)="setEvidenceCategory('print')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('print')">
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucideCamera class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Print</p>
+                      <p class="line-clamp-1 font-normal text-slate-500">Tela ou log</p>
+                    </button>
+                    <button type="button" (click)="setEvidenceCategory('ownership')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('ownership')">
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucideKey class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Conta / titular</p>
+                      <p class="line-clamp-1 font-normal text-slate-500">Identificação</p>
+                    </button>
+                    <button type="button" (click)="setEvidenceCategory('other')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('other')">
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucidePaperclip class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Outro</p>
+                      <p class="line-clamp-1 font-normal text-slate-500">Observação</p>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Ex.: recibo, referência, print da aplicação…"
+                    class="input-flat text-sm"
+                    [formControl]="evidenceControl"
+                    [class.input-error]="evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled"
+                  />
+                  @if (evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled) {
+                    <p class="text-xs text-red-600">Escreva pelo menos 4 caracteres.</p>
                   }
-
-                  @if (transactionType === 'physical') {
-                    <div class="flex flex-wrap gap-2">
-                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="generateDeliveryQr()" [class]="actionCardClass(!flowInteractionDisabled())">
-                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideSmartphone class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
-                        <p class="leading-tight">Gerar código de entrega</p>
-                      </button>
+                  @if (evidencesForStep('delivery').length > 0) {
+                    <ul class="max-h-24 space-y-1 overflow-auto rounded-mm border border-slate-100 bg-slate-50/80 p-2 text-xs">
+                      @for (item of evidencesForStep('delivery'); track item.id) {
+                        <li><span class="font-medium">{{ item.title }}</span></li>
+                      }
+                    </ul>
+                  }
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      [disabled]="flowInteractionDisabled()"
+                      (click)="addTypedDeliveryEvidence()"
+                      [class]="actionCardClass(!flowInteractionDisabled())"
+                    >
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucideReceipt class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Salvar registro</p>
+                    </button>
+                    <button
+                      type="button"
+                      [disabled]="flowInteractionDisabled()"
+                      (click)="confirmDeliveryStepComplete()"
+                      [class]="primaryReleaseCardClass()"
+                    >
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucideCheck class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Tudo entregue</p>
+                    </button>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" [disabled]="flowInteractionDisabled()" (click)="generateDeliveryQr()" [class]="actionCardClass(!flowInteractionDisabled())">
+                      <span class="grid place-content-center text-mm-purple-dark"><svg lucideSmartphone class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                      <p class="leading-tight">Gerar código de entrega</p>
+                    </button>
+                  </div>
+                  @if (deliveryQrToken) {
+                    <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
+                      <p class="text-slate-600">Indique este código ao comprador para ele confirmar a leitura no dispositivo dele.</p>
+                      <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
                     </div>
-                    @if (deliveryQrToken) {
-                      <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
-                        <p class="text-slate-600">Mostre este código ao comprador — ele confirma o recebimento na tela dele:</p>
-                        <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
-                      </div>
-                    }
                   }
 
                   <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
@@ -486,42 +506,29 @@
                       (click)="openStepAttachmentPicker('delivery')"
                     >
                       <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      Anexar envio / rastreio (opcional)
+                      Anexar comprovantes
                     </button>
                   </div>
                 } @else {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
-                    @if (transactionType === 'digital') {
-                      aguarde o vendedor registrar a entrega do acesso. Quando ele concluir, o fluxo segue para a confirmação final de ambos.
-                    } @else {
-                      aguarde o código de entrega. Quando o vendedor gerar, confirme aqui que leu o código ou recebeu o produto.
-                    }
+                    Acompanhe o vendedor. Com o código gerado, confirme a leitura abaixo. Se ele concluir com "Tudo entregue", o fluxo segue para a confirmação mútua.
                   </p>
-
-                  @if (transactionType === 'physical') {
-                    @if (deliveryQrToken) {
-                      <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
-                        <p class="text-slate-600">Código informado pelo vendedor — confirme após receber ou conferir:</p>
-                        <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
-                        <button
-                          type="button"
-                          [disabled]="flowInteractionDisabled()"
-                          (click)="simulateQrScan()"
-                          class="mm-btn-soft disabled:cursor-not-allowed"
-                        >
-                          Confirmar recebimento / leitura do código
-                        </button>
-                      </div>
-                    } @else {
-                      <p class="text-xs text-slate-500">Ainda não há código — o vendedor gera na sessão dele após o pagamento em custódia.</p>
-                    }
+                  @if (deliveryQrToken) {
+                    <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
+                      <p class="text-slate-600">Confirme após receber ou conferir.</p>
+                      <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
+                      <button
+                        type="button"
+                        [disabled]="flowInteractionDisabled()"
+                        (click)="simulateQrScan()"
+                        class="mm-btn-soft disabled:cursor-not-allowed"
+                      >
+                        Confirmar recebimento / leitura do código
+                      </button>
+                    </div>
+                  } @else {
+                    <p class="text-xs text-slate-500">Ainda sem código: o vendedor pode concluir com "Tudo entregue" ou gerar o código abaixo.</p>
                   }
-
-                  @if (transactionType === 'digital') {
-                    <p class="text-xs text-slate-500">Nesta etapa, quem registra a liberação do acesso é o vendedor.</p>
-                  }
-
                   <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
                     <p class="mb-1 text-[10px] leading-snug text-slate-500">{{ stepAttachmentHint('delivery') }}</p>
                     @if (evidencesForStep('delivery').length > 0) {
@@ -538,7 +545,7 @@
                       (click)="openStepAttachmentPicker('delivery')"
                     >
                       <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      Anexar comprovante de recebimento (opcional)
+                      Anexar comprovante de recebimento
                     </button>
                   </div>
                 }
@@ -549,17 +556,14 @@
           @case ('delivery_confirmed') {
             <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
               <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[10px] font-medium text-slate-500">Guia</p>
                 @if (transactionSide === 'buy') {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
-                    confirme que recebeu o bem ou o acesso conforme combinado. Só o seu botão aparece aqui; o vendedor confirma o lado dele na sessão dele.
-                    Com os dois ok, o pagamento é liberado ao vendedor.
+                    Confirme o recebimento alinhado ao combinado. O vendedor faz a confirmação correspondente na sessão dele. Com ambas, o valor segue para o vendedor.
                   </p>
                 } @else {
                   <p class="text-sm leading-snug text-slate-800">
-                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
-                    confirme que cumpriu a entrega. O comprador confirma o recebimento na sessão dele. Os dois ok encerram a liberação do pagamento.
+                    Confirme, do seu lado, que cumpriu a entrega combinada. O comprador confirma na tela dele. As duas confirmações encerram a liberação.
                   </p>
                 }
                 @if (transactionSide === 'buy') {
@@ -606,7 +610,7 @@
                   [routerLink]="['/dispute', transactionId]"
                   [queryParams]="transactionQueryParamsForRouter()"
                   class="flex w-full items-center justify-center rounded-mm border border-red-200/90 bg-red-50/90 px-3 py-2 text-center text-xs font-medium text-red-800 no-underline shadow-sm transition hover:border-red-300 hover:bg-red-50"
-                >Algo errado? Abrir disputa</a>
+                >Abrir disputa</a>
               </div>
             </div>
           }
@@ -614,7 +618,7 @@
           @case ('released') {
             <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
               <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4">
-                <p class="text-left text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-left text-[10px] font-medium text-slate-500">Guia</p>
                 <div class="text-center">
                   <p class="flex justify-center text-green-600" aria-hidden="true">
                     <svg lucideCircleCheck class="h-8 w-8 shrink-0" aria-hidden="true" />
@@ -627,12 +631,12 @@
                       class="mt-3 inline-flex items-center justify-center rounded-mm border border-violet-300 bg-mm-surface px-4 py-2 text-xs font-semibold text-mm-purple-dark transition hover:border-violet-400 hover:bg-violet-50"
                       (click)="openFeedbackModalIfNeeded()"
                     >
-                      Avaliar contraparte
+                      Avaliar a outra parte
                     </button>
                   } @else {
                     <p class="mt-2 text-[11px] text-emerald-700">Sua avaliação já foi enviada.</p>
                   }
-                  <a routerLink="/dashboard" class="mm-btn-success mt-3 inline-flex px-5 py-2.5 text-xs font-semibold no-underline">Ir ao painel</a>
+                  <a routerLink="/dashboard" class="mm-btn-success mt-3 inline-flex px-5 py-2.5 text-xs font-semibold no-underline">Painel</a>
                 </div>
               </div>
             </div>
@@ -656,7 +660,7 @@
 
       @if (inviteAccessBlocked) {
         <div class="shrink-0 border-t border-amber-100/90 bg-amber-50/50 px-3 py-2 text-center">
-          <p class="text-[11px] text-slate-700">Chat desativado até você abrir um convite válido (use o link completo ou volte ao painel).</p>
+          <p class="text-[11px] text-slate-700">Chat indisponível sem convite válido. Volte ao painel ou use o link completo.</p>
         </div>
       } @else if (!isFlowLocked()) {
         <div class="shrink-0 border-t border-violet-100/80 bg-gradient-to-r from-mm-surface/30 to-white px-2 py-2 sm:px-3">
@@ -687,7 +691,7 @@
         </div>
       } @else {
         <div class="shrink-0 border-t border-violet-100/80 bg-mm-surface/40 px-3 py-2 text-center">
-          <p class="text-[11px] text-slate-600">Negociação encerrada — conversa e passos abaixo são só para consulta.</p>
+          <p class="text-[11px] text-slate-600">Negociação encerrada. O histórico permanece visível para consulta.</p>
         </div>
       }
     </div>
@@ -702,16 +706,15 @@
     >
     <div class="shrink-0 rounded-mm border border-violet-100/80 bg-white/80 p-3 shadow-sm">
       <header class="shrink-0">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Painel da negociação</p>
-        <p class="mt-1 text-sm font-semibold leading-tight text-mm-ink">Visão rápida e progresso em tempo real</p>
-        <p class="mt-1 text-[11px] leading-snug text-slate-500">Tudo o que importa para fechar com segurança.</p>
+        <p class="text-[10px] font-medium text-slate-500">Contexto</p>
+        <p class="mt-1 text-sm font-semibold leading-tight text-mm-ink">Estado e progresso</p>
       </header>
       <div class="mt-3 border-t border-violet-100/80 pt-3" role="region" aria-label="Status e progresso">
         <div class="flex items-center justify-between gap-2">
           <p class="text-[10px] font-medium uppercase tracking-wide text-slate-500">Status atual</p>
           <app-status-badge [status]="currentStatus" />
         </div>
-        <p class="mt-1 text-[10px] text-slate-500">Etapa ativa</p>
+        <p class="mt-1 text-[10px] text-slate-500">Etapa</p>
         <p class="text-xs font-semibold text-mm-ink">{{ flowStepTitle() }}</p>
         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-violet-100/80">
           <div
@@ -725,26 +728,24 @@
 
     <dl class="mt-3 space-y-3">
       <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
-        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Código da negociação</dt>
+        <dt class="text-[10px] font-medium text-slate-500">Referência</dt>
         <dd class="mt-1 break-all font-mono text-[11px] leading-tight text-mm-ink">#{{ transactionId }}</dd>
         <p class="mt-1 text-[9px] text-slate-400">Acesso: {{ inviteToken }}</p>
       </div>
 
       <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
-        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Resumo comercial</dt>
+        <dt class="text-[10px] font-medium text-slate-500">Resumo</dt>
         <dd class="mt-2 space-y-1.5 text-[11px] text-slate-600">
           <p class="flex items-start justify-between gap-2"><span>Você</span><strong class="text-right text-mm-ink">{{ asideYouLine() }}</strong></p>
           <p class="flex items-start justify-between gap-2"><span>Tipo</span><strong class="text-right text-mm-ink">{{ typeLabel() }}</strong></p>
           <p class="flex items-start justify-between gap-2"><span>Entrega</span><strong class="text-right text-mm-ink">{{ deliveryLabel() }}</strong></p>
           <p class="flex items-start justify-between gap-2"><span>Convite abre como</span><strong class="text-right text-mm-ink">{{ counterpartyRoleLabel() }}</strong></p>
-          @if (transactionType === 'digital') {
-            <p class="flex items-start justify-between gap-2"><span>Prazo de reclamação</span><strong class="text-right text-mm-ink">{{ securityWindowHours }} h</strong></p>
-          }
+          <p class="flex items-start justify-between gap-2"><span>Prazo de contestação</span><strong class="text-right text-mm-ink">{{ securityWindowHours }} h</strong></p>
         </dd>
       </div>
 
       <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
-        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pagamento e entrega</dt>
+        <dt class="text-[10px] font-medium text-slate-500">Pagamento e entrega</dt>
         <dd class="mt-2 space-y-1.5 text-[11px] text-slate-600">
           <p class="flex items-start justify-between gap-2">
             <span>Método</span>
@@ -771,7 +772,7 @@
       </div>
 
       <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
-        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Participantes</dt>
+        <dt class="text-[10px] font-medium text-slate-500">Participantes</dt>
         <dd class="mt-2 space-y-1.5 text-[10px] leading-tight text-slate-700">
           <p class="truncate rounded border border-violet-100/70 bg-violet-50/60 px-2 py-1">{{ mutualBuyerCompact() }}</p>
           <p class="truncate rounded border border-violet-100/70 bg-violet-50/60 px-2 py-1">{{ mutualSellerCompact() }}</p>
@@ -813,11 +814,8 @@
   @if (showFeedbackModal) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
       <div class="w-full max-w-md rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
-        <h3 class="text-base font-semibold text-mm-ink">Como foi negociar com a contraparte?</h3>
-        <p class="mt-1 text-xs leading-relaxed text-slate-600">
-          Sua colaboração na avaliação fortalece a confiança entre os usuários e melhora as próximas negociações.
-          Comentário é opcional.
-        </p>
+        <h3 class="text-base font-semibold text-mm-ink">Avaliação da outra parte</h3>
+        <p class="mt-1 text-xs leading-relaxed text-slate-600">Sua opinião ajuda a manter a qualidade do serviço.</p>
 
         <div class="mt-3 flex items-center justify-center gap-8">
           <button
@@ -866,7 +864,7 @@
           </button>
         </div>
 
-        <label class="mt-3 block text-[11px] font-medium text-slate-600" for="feedback-comment">Comentário/observações (opcional)</label>
+        <label class="mt-3 block text-[11px] font-medium text-slate-600" for="feedback-comment">Comentário</label>
         <textarea
           id="feedback-comment"
           [(ngModel)]="feedbackComment"

@@ -2,7 +2,7 @@
   <!-- ── Header (barra flutuante — padrão corporativo moderno) ─── -->
   <header class="sticky top-0 z-20 shrink-0">
     <div
-      class="mx-auto max-w-7xl px-3 sm:px-4"
+      class="mx-auto max-w-7xl px-3 sm:px-5"
       style="padding-top: max(0.75rem, env(safe-area-inset-top, 0px))"
     >
       <div class="mm-float-nav flex flex-wrap items-center justify-between gap-x-2 gap-y-2 px-3 py-1 sm:gap-4 sm:px-5 sm:py-0">
@@ -19,7 +19,7 @@
 
       <!-- Nav central -->
       <nav
-        class="order-last flex w-full min-w-0 flex-nowrap items-stretch justify-start gap-x-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] px-0 sm:order-none sm:flex-1 sm:justify-center sm:gap-x-0.5 sm:overflow-visible sm:px-4 md:w-auto"
+        class="order-last flex w-full min-w-0 flex-nowrap items-stretch justify-start gap-x-1.5 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] px-0 sm:order-none sm:flex-1 sm:justify-center sm:gap-x-1 sm:overflow-visible sm:px-4 md:w-auto"
       >
         <a
           routerLink="/transaction/create"
@@ -71,8 +71,8 @@
               (click)="$event.stopPropagation()"
             >
               <div class="border-b border-slate-100 px-2.5 py-1.5">
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Notificações</p>
-                <p class="text-[10px] leading-tight text-slate-500">Toque para abrir; ao ver, a entrada é removida.</p>
+                <p class="text-xs font-medium text-slate-600">Notificações</p>
+                <p class="text-[10px] leading-tight text-slate-500">Clique no aviso para abrir. Depois de lidos, saem da lista.</p>
               </div>
               <div class="max-h-[9rem] overflow-y-auto overscroll-contain px-0.5 py-0.5">
                 @if (notifications$ | async; as items) {
@@ -135,7 +135,7 @@
                 class="mt-1 flex w-full items-center rounded-mm px-3 py-2 text-left text-xs font-medium text-red-700 transition hover:bg-red-50"
                 (click)="logout()"
               >
-                Deslogar
+                Sair
               </button>
             </div>
           }
@@ -147,8 +147,8 @@
 
   <!-- ── Conteúdo ────────────────────────────────────── -->
   <main
-    class="mm-touch-scroll mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overflow-x-hidden px-4 py-2 sm:py-3"
-    style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px))"
+    class="mm-touch-scroll mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overflow-x-hidden px-3 py-3 sm:px-5 sm:py-4"
+    style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px))"
   >
     <router-outlet />
   </main>

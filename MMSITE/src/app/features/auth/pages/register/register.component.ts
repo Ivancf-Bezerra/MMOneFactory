@@ -15,14 +15,14 @@ import { firstValueFrom } from 'rxjs';
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="mm-auth-shell">
-      <div class="mb-6 text-center">
-        <span class="mb-3 inline-grid h-12 w-12 place-content-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xl font-bold text-white shadow-sm ring-1 ring-violet-200/70">M</span>
+      <div class="mm-auth-brand">
+        <span class="inline-grid h-12 w-12 place-content-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xl font-bold text-white shadow-sm ring-1 ring-violet-200/70">M</span>
         <h1 class="mm-page-h1">Criar sua conta</h1>
-        <p class="mt-1 mm-page-lead">Abra sua conta e negocie com o dinheiro guardado na plataforma até tudo ser concluído.</p>
+        <p class="mm-page-lead">Crie sua conta e acesse as negociações com pagamento protegido.</p>
       </div>
 
-      <div class="glass-panel p-5 sm:p-6">
-        <form class="space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="glass-panel flex flex-col space-y-5 p-4 sm:p-5">
+        <form class="space-y-5" [formGroup]="form" (ngSubmit)="onSubmit()">
           <label class="block">
             <span class="mb-1 block text-sm font-medium text-slate-700">Nome completo</span>
             <input
@@ -72,7 +72,7 @@ import { firstValueFrom } from 'rxjs';
           <button type="submit" class="neon-button w-full py-2.5">Criar conta</button>
         </form>
 
-        <div class="my-4 flex items-center gap-3">
+        <div class="flex items-center gap-3">
           <span class="h-px flex-1 bg-slate-200"></span>
           <span class="text-xs font-medium uppercase tracking-wide text-slate-400">ou</span>
           <span class="h-px flex-1 bg-slate-200"></span>
@@ -86,13 +86,13 @@ import { firstValueFrom } from 'rxjs';
           Continuar com Google
         </button>
 
-        <p class="mt-5 border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
+        <p class="border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
           Já tem conta?
           <a routerLink="/login" class="font-semibold text-mm-purple-dark hover:underline">Entrar</a>
         </p>
       </div>
 
-      <p class="mt-4 text-center text-xs text-slate-400">
+      <p class="text-center text-xs text-slate-400">
         Dados tratados com cuidado · Pagamentos com proteção
       </p>
     </section>
@@ -135,7 +135,7 @@ export class RegisterComponent {
       );
 
       if (!response?.accessToken) {
-        this.toastService.show('Falha no cadastro', 'A API não retornou token de acesso.', 'warning');
+        this.toastService.show('Falha no cadastro', 'Não recebemos a confirmação do servidor. Tente de novo em instantes.', 'warning');
         return;
       }
 
@@ -144,7 +144,7 @@ export class RegisterComponent {
       this.authService.setUserEmail(response.user?.email ?? emailNorm);
       void this.router.navigateByUrl('/transaction/create');
     } catch {
-      this.toastService.show('Falha no cadastro', 'Não foi possível criar conta na API.', 'warning');
+      this.toastService.show('Falha no cadastro', 'Não foi possível concluir o cadastro. Tente de novo em instantes.', 'warning');
     }
   }
 
@@ -152,7 +152,7 @@ export class RegisterComponent {
     try {
       await this.clerkService.redirectToSignIn();
     } catch {
-      this.toastService.show('Falha no Clerk', 'Não foi possível abrir o login com Google.', 'warning');
+      this.toastService.show('Falha no login com Google', 'Não foi possível abrir a tela do Google. Tente de novo.', 'warning');
     }
   }
 }

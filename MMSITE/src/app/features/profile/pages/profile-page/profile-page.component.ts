@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
-import { LucideLock, LucideShield, LucideUserCheck } from '@lucide/angular';
+import { LucideShield, LucideUserCheck } from '@lucide/angular';
 import { AuthService, VerifiedProfileData } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { TransactionApiService } from '../../../../core/services/transaction-api.service';
@@ -12,26 +12,26 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, LucideLock, LucideShield, LucideUserCheck],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, LucideShield, LucideUserCheck],
   template: `
-    <section class="mm-page-shell space-y-4">
-      <header class="flex flex-wrap items-center justify-between gap-2">
-        <div>
+    <section class="mm-page-shell min-w-0 space-y-5">
+      <header class="mm-page-header">
+        <div class="min-w-0 space-y-1.5">
           <h1 class="mm-page-h1">Seu perfil Middleman</h1>
-          <p class="mt-0.5 mm-page-lead">
-            Personalize como você aparece nas negociações e acompanhe, em um só lugar, a confiança da sua conta.
+          <p class="mm-page-lead">
+            Ajuste como você aparece nas negociações e veja, num único lugar, o resumo de confiança da sua conta.
           </p>
         </div>
-        <a routerLink="/transaction/create" class="neon-button px-3 py-1.5 text-xs">Nova transação</a>
+        <a routerLink="/transaction/create" class="neon-button shrink-0 px-3 py-1.5 text-xs">Nova transação</a>
       </header>
 
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <article class="glass-panel p-4 sm:p-5">
-          <div class="mb-3 flex items-center gap-2">
-            <span class="grid h-8 w-8 place-content-center rounded-mm bg-mm-surface text-mm-purple">
+          <div class="mb-4 flex items-start gap-3 sm:items-center">
+            <span class="grid h-8 w-8 shrink-0 place-content-center rounded-mm bg-mm-surface text-mm-purple">
               <svg lucideUserCheck class="h-4 w-4 shrink-0" aria-hidden="true" />
             </span>
-            <div>
+            <div class="min-w-0 space-y-1">
               <h2 class="text-sm font-semibold text-mm-ink">Identidade verificada</h2>
               <p class="text-xs text-slate-500">
                 Use um perfil confiável para abrir negociações com mais segurança e clareza para todas as partes.
@@ -56,12 +56,12 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
             </div>
           }
           @if (showVerifiedForm) {
-            <form class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <form class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
             <label class="block sm:col-span-2">
               <span class="mb-1 block text-xs font-medium text-slate-700">Nome de exibição (perfil social)</span>
               <input formControlName="displayName" type="text" class="input-flat text-sm" />
             </label>
-            <p class="sm:col-span-2 rounded-mm border border-violet-100 bg-violet-50/70 px-2.5 py-2 text-[11px] leading-relaxed text-violet-900">
+            <p class="sm:col-span-2 rounded-mm border border-violet-100 bg-violet-50/70 px-3 py-2.5 text-[11px] leading-relaxed text-violet-900">
               Os dados cadastrais abaixo são protegidos e usados apenas para validar o uso da conta. Depois de
               confirmados, ajustes estruturais só podem ser pedidos ao suporte.
             </p>
@@ -111,7 +111,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
               />
             </label>
             @if (!hasVerifiedProfile) {
-              <label class="flex items-start gap-2 rounded-mm border border-slate-200 bg-slate-50/70 px-2.5 py-2 sm:col-span-2">
+              <label class="flex items-start gap-3 rounded-mm border border-slate-200 bg-slate-50/70 px-3 py-2.5 sm:col-span-2">
                 <input formControlName="dataConfirmation" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-mm-purple" />
                 <span class="text-[11px] leading-relaxed text-slate-700">
                   Confirmo a veracidade dos dados e autorizo o vínculo deste CPF ao meu e-mail para uso da plataforma.
@@ -121,7 +121,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
             @if (profileForm.invalid && profileForm.touched) {
               <p class="sm:col-span-2 text-xs text-red-600">Revise os campos obrigatórios para salvar.</p>
             }
-            <div class="sm:col-span-2 flex items-center justify-end gap-2 pt-1">
+            <div class="sm:col-span-2 flex items-center justify-end gap-2 pt-2">
               <button type="submit" class="neon-button px-4 py-2 text-xs font-semibold">Salvar perfil social</button>
             </div>
             </form>
@@ -130,7 +130,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
 
         <aside class="space-y-3">
           <article class="glass-panel p-3.5">
-            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Resumo da sua jornada</p>
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Resumo da sua atividade</p>
             @if (kpis$ | async; as kpis) {
               <div class="mt-2 space-y-2 text-xs text-slate-600">
                 <p class="flex items-center justify-between gap-2">
@@ -152,24 +152,12 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
           <article class="glass-panel p-3.5">
             <div class="mb-1.5 flex items-center gap-1.5 text-mm-purple-dark">
               <svg lucideShield class="h-4 w-4 shrink-0" aria-hidden="true" />
-              <p class="text-[10px] font-semibold uppercase tracking-wide">Segurança</p>
+              <p class="text-[10px] font-semibold uppercase tracking-wide">Confiança e privacidade</p>
             </div>
-            <ul class="list-disc space-y-1 pl-4 text-xs text-slate-600">
-              <li>Apenas perfis verificados podem abrir novas negociações.</li>
-              <li>Cada etapa tem confirmação mútua antes da liberação do valor.</li>
-              <li>Ao sair, dados sensíveis locais são limpos do dispositivo.</li>
-            </ul>
-          </article>
-
-          <article class="glass-panel p-3.5">
-            <div class="mb-1.5 flex items-center gap-1.5 text-mm-purple-dark">
-              <svg lucideLock class="h-4 w-4 shrink-0" aria-hidden="true" />
-              <p class="text-[10px] font-semibold uppercase tracking-wide">Privacidade</p>
-            </div>
-            <ul class="list-disc space-y-1 pl-4 text-xs text-slate-600">
-              <li>Seus dados de identidade servem apenas para segurança das negociações.</li>
-              <li>Nenhuma informação sensível é exibida em páginas públicas.</li>
-              <li>O nome de exibição pode ser ajustado sempre que precisar.</li>
+            <ul class="list-disc space-y-1.5 pl-4 text-xs text-slate-600">
+              <li>Negociações exigem perfil verificado; o valor só libera com confirmação de ambas as partes.</li>
+              <li>Dados de identidade servem à validação — nada disso em páginas públicas. O nome de exibição pode mudar quando quiser.</li>
+              <li>Ao sair, informação sensível armazenada localmente é limpa neste dispositivo.</li>
             </ul>
           </article>
         </aside>
@@ -275,7 +263,7 @@ export class ProfilePageComponent implements OnInit {
       this.profileForm.get('dataConfirmation')?.updateValueAndValidity({ emitEvent: false });
       this.toastService.show('Perfil verificado criado', 'Seus dados foram vinculados ao e-mail com sucesso.', 'success');
     } else {
-      this.toastService.show('Perfil social atualizado', 'Seu nome de exibição foi salvo com sucesso.', 'success');
+      this.toastService.show('Nome de exibição salvo', 'A alteração entra em vigor nas negociações em seguida.', 'success');
     }
   }
 }

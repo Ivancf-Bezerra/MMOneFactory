@@ -6,7 +6,7 @@ export function controlErrorMessage(control: AbstractControl | null, labels?: { 
 
   const e = control.errors as ValidationErrors;
 
-  if (e['required']) return 'Preenchimento obrigatório.';
+  if (e['required']) return 'Este campo é obrigatório.';
   if (e['email']) return 'Informe um e-mail válido.';
   if (e['minlength']) return `Mínimo de ${e['minlength'].requiredLength} caracteres.`;
   if (e['maxlength']) return `Máximo de ${e['maxlength'].requiredLength} caracteres.`;

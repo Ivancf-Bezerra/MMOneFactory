@@ -10,7 +10,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
   selector: 'app-dispute-detail',
   imports: [ReactiveFormsModule, RouterLink, LucideFlag],
   template: `
-    <section class="mm-page-shell--narrow space-y-5">
+    <section class="mm-page-shell--narrow min-w-0 space-y-5">
       <header class="glass-panel flex items-start gap-4 p-5 sm:p-6">
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-mm bg-red-50 text-red-500">
           <svg lucideFlag class="h-[22px] w-[22px] shrink-0" aria-hidden="true" />
@@ -18,8 +18,8 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
         <div>
           <h1 class="mm-page-h1">Abrir disputa</h1>
           <p class="mt-1 mm-page-lead">
-            Transação <strong class="text-slate-700">{{ transactionId }}</strong> —
-            Descreva o que aconteceu e envie o que tiver como prova para abrir a mediação.
+            Negociação <strong class="text-slate-700">{{ transactionId }}</strong> —
+            descreva o ocorrido e anexe o que tiver como prova para abrir a mediação.
           </p>
         </div>
       </header>
@@ -63,7 +63,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
 
           <div class="rounded-mm border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             <p class="font-semibold">Antes de continuar</p>
-            <p class="mt-0.5">Tente resolver pelo chat da transação primeiro. Sem evidências, o caso pode ser encerrado sem decisão.</p>
+            <p class="mt-0.5">Tente resolver pelo chat desta negociação antes. Sem provas, o pedido pode ser arquivado.</p>
           </div>
 
           <div class="flex flex-wrap gap-2">
@@ -73,7 +73,7 @@ import { normalizeFreeText } from '../../../../core/utils/sanitize';
               [queryParams]="returnTxQueryParams"
               class="btn-ghost py-2.5"
             >
-              Voltar para transação
+              Voltar à negociação
             </a>
           </div>
         </form>
@@ -87,7 +87,7 @@ export class DisputeDetailComponent {
   private readonly fb = inject(NonNullableFormBuilder);
 
   readonly transactionId = this.route.snapshot.paramMap.get('id') ?? '---';
-  /** Mesmos query params da transacao (ida pela pagina de detalhe) para restaurar progresso ao voltar. */
+  /** Mesmos query params da transação (ida pela página de detalhe) para restaurar progresso ao voltar. */
   readonly returnTxQueryParams: Record<string, string> = this.extractReturnTxQueryParams(
     this.route.snapshot.queryParamMap,
   );
@@ -103,7 +103,7 @@ export class DisputeDetailComponent {
 
   private extractReturnTxQueryParams(queryParamMap: ParamMap): Record<string, string> {
     const o: Record<string, string> = {};
-    for (const k of ['type', 'side', 'delivery', 'window', 'gate']) {
+    for (const k of ['side', 'window', 'gate', 'itemTitle', 'itemAmount', 'itemCurrency']) {
       const v = queryParamMap.get(k);
       if (v !== null && v !== '') o[k] = v;
     }

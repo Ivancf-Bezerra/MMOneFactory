@@ -6,6 +6,7 @@ import {
   LucideCamera,
   LucideCheck,
   LucideCircleCheck,
+  LucideCopy,
   LucideCreditCard,
   LucideKey,
   LucidePaperclip,
@@ -24,11 +25,9 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { clampText, normalizeFreeText } from '../../../../core/utils/sanitize';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import {
-  DeliveryMethod,
   PLATFORM_DISPUTE_WINDOW_HOURS,
   TransactionSide,
   TransactionStatus,
-  TransactionType,
 } from '../../../../core/models/transaction.model';
 
 type FlowStep =
@@ -144,6 +143,7 @@ const INVITE_GATE_HEX_LEN = 32;
     LucideCamera,
     LucideCheck,
     LucideCircleCheck,
+    LucideCopy,
     LucideCreditCard,
     LucideKey,
     LucidePaperclip,
@@ -203,6 +203,7 @@ export class TransactionDetailComponent implements OnInit {
 
   inviteLink = '';
   inviteToken = '';
+  inviteShortCode = '';
   showInviteQrPanel = false;
   /** QR do convite (gerado localmente, sem servico externo). */
   inviteQrDataUrl = '';
@@ -226,9 +227,7 @@ export class TransactionDetailComponent implements OnInit {
     Validators.maxLength(500),
   ]);
 
-  transactionType: TransactionType = 'physical';
   transactionSide: TransactionSide = 'sell';
-  deliveryMethod: DeliveryMethod = 'shipping';
   securityWindowHours = PLATFORM_DISPUTE_WINDOW_HOURS;
   deliveryQrToken = '';
   digitalEvidenceCategory: 'print' | 'ownership' | 'other' = 'print';
@@ -249,7 +248,7 @@ export class TransactionDetailComponent implements OnInit {
       id: 1,
       sender: 'chatbot',
       welcome: true,
-      text: 'Olá! Siga os passos abaixo na ordem. Quem criou a negociação compartilha o convite; a outra parte entra pelo mesmo link com o papel oposto. Use o chat para alinhar detalhes e anexe comprovantes quando quiser registrar algo na conversa.',
+      text: 'Siga a sequência abaixo: o anfitrião envia o convite; a outra parte entra com o papel correspondente. O chat serve para alinhar detalhes. Em pagamento e entrega, use anexos para registro (comprovantes ou capturas) quando fizer diferença para o caso.',
       time: '10:15',
     },
   ];
@@ -314,20 +313,13 @@ export class TransactionDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
-    const type = qp.get('type');
     const side = qp.get('side');
-    const delivery = qp.get('delivery');
     const windowParam = Number(qp.get('window'));
     const openInviteQrFromCreate = qp.get('openInviteQr') === '1';
 
-    if (type === 'physical' || type === 'digital') this.transactionType = type;
     if (side === 'buy' || side === 'sell') this.transactionSide = side;
-    if (delivery && ['shipping', 'pickup', 'download', 'email', 'access'].includes(delivery)) {
-      this.deliveryMethod = delivery as DeliveryMethod;
-    }
-    if (Number.isFinite(windowParam) && windowParam > 0) {
-      this.securityWindowHours = windowParam;
-    }
+    this.securityWindowHours =
+      Number.isFinite(windowParam) && windowParam > 0 ? windowParam : PLATFORM_DISPUTE_WINDOW_HOURS;
 
     this.transactionGate = this.resolveInviteGate(qp);
     this.inviteAccessBlocked = !this.transactionGate;
@@ -344,6 +336,7 @@ export class TransactionDetailComponent implements OnInit {
       this.hydrateOrderSnapshot(qp);
       this.inviteLink = this.buildInviteLink();
       this.inviteToken = `INV-${this.transactionGate.slice(0, 8).toUpperCase()}`;
+      this.inviteShortCode = this.readInviteCodeFromSessionStorage();
     }
 
     if (!this.inviteAccessBlocked) {
@@ -360,6 +353,9 @@ export class TransactionDetailComponent implements OnInit {
 
       this.hydrateCounterpartyPeerName(this.route.snapshot.queryParamMap);
       this.inviteLink = this.buildInviteLink();
+      if (!this.inviteShortCode) {
+        this.inviteShortCode = this.readInviteCodeFromSessionStorage();
+      }
       if (this.isFlowLocked()) {
         this.applyFlowLockToForm();
       }
@@ -372,7 +368,7 @@ export class TransactionDetailComponent implements OnInit {
 
   /**
    * Se o convidado foi escolhido na criação (pesquisa / URL), assume que o convite já foi tratado
-   * e avança o passo do anfitrião sem clicar em «Já enviei o convite — continuar».
+   * e avança o passo do anfitrião sem clicar em "Já enviei o convite — continuar".
    */
   private maybeAutoConfirmHostInviteAfterCreate(should: boolean): void {
     if (!should) return;
@@ -428,6 +424,17 @@ export class TransactionDetailComponent implements OnInit {
       };
     } catch {
       return null;
+    }
+  }
+
+  private readInviteCodeFromSessionStorage(): string {
+    if (typeof sessionStorage === 'undefined') return '';
+    try {
+      const raw = sessionStorage.getItem(`mm-tx-invite-code:${this.transactionId}`)?.trim().toUpperCase() ?? '';
+      if (!/^[A-Z]{3}\d{4}$/.test(raw)) return '';
+      return `${raw.slice(0, 3)}-${raw.slice(3)}`;
+    } catch {
+      return '';
     }
   }
 
@@ -627,13 +634,9 @@ export class TransactionDetailComponent implements OnInit {
   /** Query params da sessao atual — repassar na ida/volta da disputa para restaurar o mesmo progresso. */
   transactionQueryParamsForRouter(): Record<string, string | number> {
     const o: Record<string, string | number> = {
-      type: this.transactionType,
       side: this.transactionSide,
-      delivery: this.deliveryMethod,
+      window: this.securityWindowHours,
     };
-    if (this.transactionType === 'digital') {
-      o['window'] = this.securityWindowHours;
-    }
     if (this.transactionGate) {
       o['gate'] = this.transactionGate;
     }
@@ -647,7 +650,7 @@ export class TransactionDetailComponent implements OnInit {
 
   private persistStorageKey(): string {
     const gateSeg = this.inviteAccessBlocked ? 'blocked' : this.transactionGate || 'missing';
-    return `mm-tx-detail:v1:${this.transactionId}:${this.transactionType}:${this.transactionSide}:${this.deliveryMethod}:w${this.securityWindowHours}:${gateSeg}`;
+    return `mm-tx-detail:v1:${this.transactionId}:${this.transactionSide}:w${this.securityWindowHours}:${gateSeg}`;
   }
 
   private persistTransactionProgress(): void {
@@ -806,19 +809,19 @@ export class TransactionDetailComponent implements OnInit {
   flowStepTitle(): string {
     switch (this.flowStep) {
       case 'ticket_created':
-        return this.isNegotiationHost ? 'Enviar o convite' : 'Entrar na negociação';
+        return this.isNegotiationHost ? 'Convite' : 'Entrada';
       case 'ticket_confirmed':
-        return 'Conferir o combinado';
+        return 'Conferência do resumo';
       case 'payment_escrow':
-        return this.transactionSide === 'buy' ? 'Pagar com proteção' : 'Pagamento em custódia (aguardar)';
+        return this.transactionSide === 'buy' ? 'Pagamento em custódia' : 'Aguardar pagamento';
       case 'delivery':
-        return this.transactionSide === 'sell' ? 'Registrar a entrega' : 'Receber o pedido';
+        return this.transactionSide === 'sell' ? 'Entrega' : 'Recebimento';
       case 'delivery_confirmed':
-        return 'Confirmar liberação';
+        return 'Confirmações finais';
       case 'released':
         return 'Concluída';
       default:
-        return 'Negociação';
+        return 'Em curso';
     }
   }
 
@@ -844,9 +847,9 @@ export class TransactionDetailComponent implements OnInit {
 
   private buildInviteLink(): string {
     const queryParams: Record<string, string | number> = {
-      type: this.transactionType,
       side: this.counterpartySide(),
       gate: this.transactionGate,
+      window: this.securityWindowHours,
     };
     if (this.orderSnapshot) {
       queryParams['itemTitle'] = this.orderSnapshot.title;
@@ -856,9 +859,6 @@ export class TransactionDetailComponent implements OnInit {
     const hostDisplay = this.authService.userDisplayName()?.trim();
     if (this.isNegotiationHost && hostDisplay) {
       queryParams['peerName'] = hostDisplay;
-    }
-    if (this.transactionType === 'digital') {
-      queryParams['window'] = this.securityWindowHours;
     }
     const tree = this.router.createUrlTree(['/transaction', this.transactionId], { queryParams });
     const path = this.router.serializeUrl(tree);
@@ -899,18 +899,18 @@ export class TransactionDetailComponent implements OnInit {
   stepAttachmentHint(step: FlowStep): string {
     if (step === 'payment_escrow') {
       return this.transactionSide === 'buy'
-        ? 'Opcional: comprovante do PIX/cartão, print do app do banco ou extrato.'
-        : 'Opcional: registro de que viu o QR ou o status do pagamento na plataforma.';
+        ? 'Comprovante, extrato ou captura do app, se precisar documentar o pagamento.'
+        : 'Registro visual do QR ou do estado do pagamento, se for relevante.';
     }
     if (step === 'delivery') {
       return this.transactionSide === 'sell'
-        ? 'Opcional: foto do envio, rastreio ou prova de que liberou o acesso digital.'
-        : 'Opcional: foto do que recebeu ou do código confirmado.';
+        ? 'Envio, rastreio ou comprovante do que deixou de sua responsabilidade.'
+        : 'Receção ou leitura do código, com imagem ou PDF se fizer sentido.';
     }
     const hints: Partial<Record<FlowStep, string>> = {
-      ticket_created: 'Opcional: print do link enviado, captura de WhatsApp ou e-mail.',
-      ticket_confirmed: 'Opcional: print do resumo da transação ou conversa em que combinaram.',
-      delivery_confirmed: 'Opcional: print após confirmar, recibo ou qualquer registro útil.',
+      ticket_created: 'Convite ou conversa, se quiser deixar registro do processo.',
+      ticket_confirmed: 'Resumo ou conversa alinhada ao combinado.',
+      delivery_confirmed: 'Tela após confirmação ou recibo, conforme o caso.',
       released: '',
     };
     return hints[step] ?? '';
@@ -928,10 +928,7 @@ export class TransactionDetailComponent implements OnInit {
       return !!this.paymentQrDataUrl;
     }
     if (step === 'delivery') {
-      if (this.transactionSide === 'sell') {
-        return true;
-      }
-      return this.transactionSide === 'buy' && !!this.deliveryQrToken;
+      return this.transactionSide === 'sell' || this.transactionSide === 'buy';
     }
     return false;
   }
@@ -1036,23 +1033,23 @@ export class TransactionDetailComponent implements OnInit {
       return;
     }
     this.pushCounterpartyBubble(this.counterpartyDemoLine());
-    this.toastService.show('Chat', 'Mensagem da outra parte adicionada.', 'info');
+    this.toastService.show('Simulação', 'Mensagem de exemplo inserida.', 'info');
   }
 
   private counterpartyDemoLine(): string {
     const cp = this.counterpartyRoleLabel();
     const demoLines: Record<FlowStep, string> = {
-      ticket_created: `Oi, sou o ${cp.toLowerCase()}. Acabei de abrir o link que você mandou.`,
-      ticket_confirmed: 'Revendo aqui: tipo, entrega e papéis batem com o combinado.',
+      ticket_created: `Aqui o ${cp.toLowerCase()}: acessei o convite e estou no mesmo fluxo.`,
+      ticket_confirmed: 'Resumo e papéis conferidos com o combinado.',
       payment_escrow:
         this.transactionSide === 'buy'
-          ? 'Fico no aguardo do pagamento (dinheiro guardado na plataforma). Qualquer coisa me chama no chat.'
-          : 'Já estou vendo o passo do pagamento. Quando o QR aparecer, aviso se precisar.',
-      delivery: 'Combinado quanto à entrega. Avise quando registrar que entregou.',
-      delivery_confirmed: 'Confirmo meu lado assim que você confirmar o seu.',
-      released: 'Obrigado pela transação!',
+          ? 'Aguardando a liquidação; qualquer ponto, escrevo no chat.'
+          : 'A acompanhar o passo de pagamento; aviso se surgir dúvida.',
+      delivery: 'Quanto à entrega, aviso quando tiver o meu registro concluído.',
+      delivery_confirmed: 'Faço a minha confirmação em seguida.',
+      released: 'Obrigado — negociação concluída.',
     };
-    return demoLines[this.flowStep] ?? `(${cp}) Alinhando por aqui — combinado.`;
+    return demoLines[this.flowStep] ?? `(${cp}) Sigo por aqui.`;
   }
 
   /** Na etapa mútua, confirma o lado oposto à sessão atual (útil com uma só janela em dev). */
@@ -1162,8 +1159,7 @@ export class TransactionDetailComponent implements OnInit {
     const title = rawTitle.length ? (rawTitle.length > 300 ? rawTitle.slice(0, 300) : rawTitle) : 'Negociação';
     const amountLabel =
       snap && Number.isFinite(snap.amount) ? this.formatOrderMoney(snap.amount, snap.currency) : '—';
-    const disputeWindowLine =
-      this.transactionType === 'digital' ? `Janela de contestação: ${this.securityWindowHours} h` : undefined;
+    const disputeWindowLine = `Janela de contestação: ${this.securityWindowHours} h`;
     return {
       title,
       amountLabel,
@@ -1203,9 +1199,9 @@ export class TransactionDetailComponent implements OnInit {
     }
     this.advanceFlow(
       'ticket_confirmed',
-      'Próximo: as duas partes conferem nesta tela se o tipo de negócio, a forma de entrega e o papel de cada um (compra ou venda) batem com o que foi combinado ao abrir a negociação. Se algo estiver diferente, ajustem pelo chat antes de seguir para o pagamento.',
-      'Já enviei o link — continuar.',
-      'Recebi o link e já entrei na negociação por aqui.',
+      'Verifiquem juntos o resumo, a entrega e os papéis. Em caso de divergência, alinhem no chat antes do pagamento.',
+      'Convite enviado — continuar.',
+      'Entrei pelo convite — seguimos na mesma negociação.',
     );
   }
 
@@ -1216,9 +1212,9 @@ export class TransactionDetailComponent implements OnInit {
     }
     this.advanceFlow(
       'ticket_confirmed',
-      'Próximo: vocês dois conferem nesta tela se o combinado bate (tipo de negócio, entrega e papéis). Ajustem pelo chat se precisar antes do pagamento em custódia.',
-      'Entrei pela convite — seguir.',
-      'Ótimo, estou na mesma negociação aqui.',
+      'Confirmem se entrega, valores e papéis batem com o combinado. Ajustem no chat, se necessário, antes do pagamento em custódia.',
+      'Entrada confirmada — seguir.',
+      'Estou na mesma negociação.',
     );
   }
 
@@ -1228,8 +1224,8 @@ export class TransactionDetailComponent implements OnInit {
     }
     const bot =
       this.transactionSide === 'buy'
-        ? 'Agora é a sua vez como comprador: escolha a forma de pagamento (PIX, cartão, boleto, carteira), gere o QR aqui, pague no app e confirme nesta tela quando concluir. O valor fica em custódia até a entrega e as confirmações finais.'
-        : 'Agora o comprador escolhe como pagar, gera o QR neste chat e confirma quando pagar. Você como vendedor só acompanha o mesmo código aqui — não escolhe método nem confirma o pagamento pelo comprador.';
+        ? 'Agora, como comprador, escolha a forma de pagamento (PIX, cartão, boleto ou carteira), gere o QR aqui, pague no app e confirme nesta tela quando concluir. O valor fica em custódia até a entrega e as confirmações finais.'
+        : 'Agora o comprador escolhe como paga, gera o QR neste chat e confirma quando pagar. Você, vendedor, só acompanha o mesmo código aqui — não escolhe o método nem confirma o pagamento no lugar dele.';
     this.advanceFlow(
       'payment_escrow',
       bot,
@@ -1251,9 +1247,7 @@ export class TransactionDetailComponent implements OnInit {
       return;
     }
     const bot =
-      this.transactionType === 'digital'
-        ? 'Pagamento em custódia confirmado. Vendedor: registre a liberação do acesso digital. Comprador: aguarde nesta etapa até o vendedor concluir.'
-        : 'Pagamento em custódia confirmado. Vendedor: gere o código quando for entregar. Comprador: use o código na sua tela para confirmar o recebimento.';
+      'Pagamento em custódia confirmado. Vendedor: registre a entrega (prints, comprovantes, código de leitura no chat) conforme o combinado. Comprador: acompanhe e use os comprovantes quando fizer sentido. Podem ainda gerar o código de entrega aqui, se forem alinhar a confirmação em duas etapas.';
     this.advanceFlow(
       'delivery',
       bot,
@@ -1296,14 +1290,14 @@ export class TransactionDetailComponent implements OnInit {
         {
           id: idBase + 1,
           sender: 'chatbot',
-          text: `QR de pagamento (${this.escrowPaymentMethodLabel()}) abaixo nesta conversa. Comprador: escaneie no app do meio de pagamento. Vendedor: pode acompanhar o mesmo código aqui.`,
+          text: `Código de pagamento (${this.escrowPaymentMethodLabel()}) abaixo. Comprador: conclua no meio indicado. Vendedor: acompanha o mesmo código neste painel.`,
           time,
         },
       ];
       this.scrollToChatBottom();
       this.persistTransactionProgress();
       this.scheduleCounterpartyReply(
-        'O QR apareceu para mim também nesta conversa. Pode seguir com o pagamento.',
+        'Código visível do meu lado. Pode concluir o pagamento no seu banco ou carteira.',
         1100,
       );
       this.toastService.show('Pagamento pronto', 'Seu código de pagamento já está disponível.', 'success');
@@ -1347,17 +1341,18 @@ export class TransactionDetailComponent implements OnInit {
     });
   }
 
-  confirmDigitalAccess(): void {
+  /** Vendedor conclui o passo de entrega (registros, anexos e/ou “tudo entregue”). */
+  confirmDeliveryStepComplete(): void {
     if (this.flowInteractionDisabled() || this.transactionSide !== 'sell') {
       return;
     }
     this.advanceFlow(
       'delivery_confirmed',
-      'Entrega registrada. Último passo: cada um confirma só o seu papel nesta página (comprador ou vendedor, conforme o link). Quando os dois confirmarem, o dinheiro é liberado para o vendedor.',
-      'Registrei a entrega digital — tudo entregue.',
-      'Vi o registro da entrega. Confirmo meu lado em seguida.',
+      'Cada um confirma o seu lado neste passo. Com ambas as confirmações, o valor segue para o vendedor.',
+      'Entrega concluída do meu lado.',
+      'Registro recebido. Sigo para a minha confirmação.',
     );
-    this.toastService.show('Perfeito', 'Assim que ambos confirmarem, a negociação será concluída.', 'success');
+    this.toastService.show('Próximo passo', 'Confirmações pendentes em ambas as sessões.', 'success');
   }
 
   generateDeliveryQr(): void {
@@ -1365,8 +1360,8 @@ export class TransactionDetailComponent implements OnInit {
       return;
     }
     this.deliveryQrToken = `QR-DEL-${Date.now().toString().slice(-8)}`;
-    this.pushUserActionBubble('Gerei o QR para confirmar a entrega.');
-    this.toastService.show('Código pronto', 'A outra pessoa usa este código para confirmar o recebimento.', 'info');
+    this.pushUserActionBubble('Código de entrega gerado.');
+    this.toastService.show('Código disponível', 'Indique-o ao comprador para confirmação na sessão dele.', 'info');
   }
 
   simulateQrScan(): void {
@@ -1375,11 +1370,11 @@ export class TransactionDetailComponent implements OnInit {
     }
     this.advanceFlow(
       'delivery_confirmed',
-      'Leitura do código de entrega concluída. Cada parte confirma o seu lado abaixo (só aparece o botão do seu papel).',
-      'Confirmei a leitura do código de entrega.',
-      'Li o código de entrega aqui do meu lado. Podemos confirmar?',
+      'Código lido. Cada pessoa confirma abaixo o seu papel, conforme a sessão.',
+      'Código de entrega confirmado.',
+      'Do meu lado está ok para confirmar.',
     );
-    this.toastService.show('Confirmação', 'Agora cada pessoa confirma seu lado para concluir.', 'info');
+    this.toastService.show('Confirmação', 'Cada um confirma no próprio aparelho.', 'info');
   }
 
   confirmByBuyer(): void {
@@ -1419,12 +1414,12 @@ export class TransactionDetailComponent implements OnInit {
       {
         id: Date.now() + 1,
         sender: 'chatbot',
-        text: 'Perfeito — os dois confirmaram. O pagamento segue para o vendedor. Esta negociação está encerrada aqui.',
+        text: 'Confirmações concluídas. O valor segue para o vendedor. Processo encerrado nesta sala.',
         time: this.currentTime(),
       },
     ];
     this.scrollToChatBottom();
-    this.toastService.show('Sucesso', 'Negociação concluída com segurança e tranquilidade.', 'success');
+    this.toastService.show('Concluído', 'O fluxo desta transação foi finalizado.', 'success');
     this.persistTransactionProgress();
     this.openFeedbackModalIfNeeded();
   }
@@ -1535,9 +1530,9 @@ export class TransactionDetailComponent implements OnInit {
     this.toastService.show('Avaliação enviada', 'Obrigado por avaliar a contraparte.', 'success');
   }
 
-  addDigitalEvidence(): void {
+  addTypedDeliveryEvidence(): void {
     if (this.flowInteractionDisabled()) return;
-    if (this.flowStep === 'delivery' && this.transactionType === 'digital' && this.transactionSide !== 'sell') {
+    if (this.flowStep !== 'delivery' || this.transactionSide !== 'sell') {
       return;
     }
     this.evidenceControl.markAsTouched();
@@ -1572,20 +1567,24 @@ export class TransactionDetailComponent implements OnInit {
 
   /** Um único fluxo: compartilhar nativo (mobile/desktop) ou copiar o link. */
   async sendInviteLink(): Promise<void> {
+    await this.shareInviteLink();
+  }
+
+  async shareInviteLink(): Promise<void> {
     const url = this.inviteLink;
     if (!url) {
       this.toastService.show('Compartilhamento', 'Ainda não há link disponível para enviar.', 'warning');
       return;
     }
-    const title = 'Negociação com pagamento protegido';
+    const title = 'Negociação — pagamento protegido';
     const otherRole = this.transactionSide === 'sell' ? 'comprador' : 'vendedor';
-    const text = `Use o link para entrar como ${otherRole}. Ref.: ${this.inviteToken}`;
+    const text = `Acesso como ${otherRole}. Ref. ${this.inviteToken}`;
 
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {
         await navigator.share({ title, text, url });
-        this.pushUserActionBubble('Enviei o link pelo compartilhar do sistema.');
-        this.toastService.show('Compartilhado', 'Link enviado com sucesso.', 'success');
+        this.pushUserActionBubble('Compartilhamento concluído pelo sistema.');
+        this.toastService.show('Enviado', 'O destinatário pode abrir o link recebido.', 'success');
         return;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'name' in err && (err as { name: string }).name === 'AbortError') {
@@ -1594,10 +1593,19 @@ export class TransactionDetailComponent implements OnInit {
       }
     }
 
+    await this.copyInviteLink();
+  }
+
+  async copyInviteLink(): Promise<void> {
+    const url = this.inviteLink;
+    if (!url) {
+      this.toastService.show('Compartilhamento', 'Ainda não há link disponível para copiar.', 'warning');
+      return;
+    }
     try {
       await navigator.clipboard.writeText(url);
-      this.pushUserActionBubble('Copiei o link — cole no WhatsApp, e-mail ou outro app.');
-      this.toastService.show('Link copiado', 'Agora é só colar e convidar a outra pessoa.', 'success');
+      this.pushUserActionBubble('Link copiado para a área de transferência.');
+      this.toastService.show('Link copiado', 'Cole no canal acordado com a outra parte.', 'success');
     } catch {
       try {
         const ta = document.createElement('textarea');
@@ -1609,11 +1617,26 @@ export class TransactionDetailComponent implements OnInit {
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
-        this.pushUserActionBubble('Copiei o link — cole no app que preferir.');
-        this.toastService.show('Link copiado', 'Compartilhe no app de sua preferência.', 'success');
+        this.pushUserActionBubble('Link copiado (método alternativo).');
+        this.toastService.show('Link copiado', 'Envie pelo canal de confiança habitual.', 'success');
       } catch {
         this.toastService.show('Compartilhamento', 'Não conseguimos copiar automaticamente. Copie o endereço manualmente.', 'warning');
       }
+    }
+  }
+
+  async copyInviteCode(): Promise<void> {
+    const code = this.inviteShortCode;
+    if (!code) {
+      this.toastService.show('Código do convite', 'O código ainda não está disponível nesta sessão.', 'warning');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(code.replace('-', ''));
+      this.pushUserActionBubble(`Copiei o código de convite (${code}).`);
+      this.toastService.show('Código copiado', 'Código de convite copiado com sucesso.', 'success');
+    } catch {
+      this.toastService.show('Código do convite', 'Não foi possível copiar automaticamente agora.', 'warning');
     }
   }
 
@@ -1710,8 +1733,8 @@ export class TransactionDetailComponent implements OnInit {
   /** Resumo do status da negociação no painel fixo (ambos veem o mesmo texto). */
   transactionStatusLabel(): string {
     const statusLabels: Record<TransactionStatus, string> = {
-      pending: 'Abertura e pagamento',
-      paid: 'Entrega em andamento',
+      pending: 'Em curso: abertura / pagamento',
+      paid: 'Em curso: entrega',
       completed: 'Concluída',
       dispute: 'Em disputa',
     };
@@ -1773,18 +1796,11 @@ export class TransactionDetailComponent implements OnInit {
   }
 
   typeLabel(): string {
-    return this.transactionType === 'digital' ? 'Digital' : 'Padrão (físico)';
+    return 'Pagamento protegido';
   }
 
   deliveryLabel(): string {
-    const deliveryLabels: Record<DeliveryMethod, string> = {
-      shipping: 'Envio',
-      pickup: 'Retirada',
-      download: 'Download',
-      email: 'E-mail',
-      access: 'Acesso online',
-    };
-    return deliveryLabels[this.deliveryMethod];
+    return 'Conforme combinado no chat';
   }
 
   sideLabel(): string {
@@ -1794,7 +1810,7 @@ export class TransactionDetailComponent implements OnInit {
   }
 
   senderLabel(sender: 'buyer' | 'seller' | 'chatbot'): string {
-    if (sender === 'chatbot') return 'Assistente';
+    if (sender === 'chatbot') return 'Guia';
     const meBuy = this.transactionSide === 'buy';
     const name = this.authService.userDisplayName();
     if (sender === 'buyer') {

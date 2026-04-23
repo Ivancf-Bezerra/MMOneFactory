@@ -8,8 +8,9 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService, VerifiedProfileData } from '../../../../core/services/auth.service';
 import { NegotiationInboxService } from '../../../../core/services/negotiation-inbox.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { InviteCodeService } from '../../../../core/services/invite-code.service';
 import { PublicUserProfile } from '../../../../core/models/negotiation-thread.model';
-import { TransactionSide, TransactionType } from '../../../../core/models/transaction.model';
+import { PLATFORM_DISPUTE_WINDOW_HOURS, TransactionSide } from '../../../../core/models/transaction.model';
 import { controlErrorMessage } from '../../../../core/utils/form-messages';
 import { normalizeFreeText } from '../../../../core/utils/sanitize';
 import { minAmount } from '../../../../core/validators/mm-validators';
@@ -43,10 +44,12 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
     LucideUserCheck,
   ],
   template: `
-    <section class="mm-page-shell space-y-5">
+    <section class="mm-page-shell min-w-0 space-y-5">
       <article class="glass-panel p-5 text-center sm:p-6">
-        <h1 class="mm-page-h1">Abra sua negociação com segurança</h1>
-        <p class="mx-auto mt-2 max-w-md mm-page-lead">Uma experiência simples para fechar negócio com confiança.</p>
+        <h1 class="mm-page-h1">Nova transação com pagamento protegido</h1>
+        <p class="mx-auto mt-2 max-w-md mm-page-lead">
+          Três passos, no seu ritmo: entre por convite, busque a outra pessoa no diretório ou inicie a negociação sem convite.
+        </p>
 
         <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-slate-600">
           <span
@@ -55,7 +58,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
             [class.bg-mm-surface]="currentHelpStep === 1 && formStarted"
             [class.border-slate-200]="!(currentHelpStep === 1 && formStarted)"
             [class.bg-slate-50]="!(currentHelpStep === 1 && formStarted)"
-            >1 · Seu perfil</span
+            >1 — Papel</span
           >
           <span
             class="rounded-full border px-2.5 py-1 transition"
@@ -63,7 +66,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
             [class.bg-mm-surface]="currentHelpStep === 2 && formStarted"
             [class.border-slate-200]="!(currentHelpStep === 2 && formStarted)"
             [class.bg-slate-50]="!(currentHelpStep === 2 && formStarted)"
-            >2 · Seu anúncio</span
+            >2 — Dados</span
           >
           <span
             class="rounded-full border px-2.5 py-1 transition"
@@ -71,15 +74,40 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
             [class.bg-mm-surface]="currentHelpStep === 3 && formStarted"
             [class.border-slate-200]="!(currentHelpStep === 3 && formStarted)"
             [class.bg-slate-50]="!(currentHelpStep === 3 && formStarted)"
-            >3 · Revisar e publicar</span
+            >3 — Revisão</span
           >
         </div>
 
         @if (!formStarted) {
-          <div class="mx-auto mt-6 w-full max-w-lg text-left">
-            <p class="mb-1.5 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Pesquisar utilizador verificado
-            </p>
+          <div class="mx-auto mt-6 w-full max-w-lg space-y-3 text-left">
+            <div class="rounded-mm border border-slate-200 bg-slate-50/80 p-3">
+              <p class="mb-1 text-xs font-medium text-slate-600">Código de convite</p>
+              <p class="mt-0.5 text-[11px] leading-relaxed text-slate-600">Quando não puder enviar o endereço completo, use o código no formato ABC-1234.</p>
+              <div class="mt-2 flex items-center gap-2">
+                <label class="min-w-0 flex-1">
+                  <span class="sr-only">Código do convite</span>
+                  <input
+                    type="text"
+                    maxlength="8"
+                    class="input-flat w-full text-center text-sm font-semibold tracking-[0.14em] uppercase"
+                    placeholder="ABC1234"
+                    [formControl]="inviteCodeControl"
+                    autocomplete="off"
+                  />
+                </label>
+                <button
+                  type="button"
+                  class="rounded-mm border border-violet-200 bg-white px-3 py-2 text-xs font-semibold text-mm-purple-dark transition hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="!inviteCodeControl.value.trim()"
+                  (click)="openByInviteCode()"
+                >
+                  Abrir
+                </button>
+              </div>
+            </div>
+
+            <div class="rounded-mm border border-slate-200 bg-white/80 p-3">
+              <p class="mb-2 text-xs font-medium text-slate-600">Pesquisa de participante</p>
             <div class="glass-panel flex items-center gap-2 px-3 py-2">
               <span class="grid h-9 w-9 shrink-0 place-content-center rounded-mm bg-mm-surface text-mm-purple">
                 <svg lucideSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -95,12 +123,10 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
                 />
               </label>
             </div>
-            <p class="mt-1.5 text-center text-[10px] leading-relaxed text-slate-500">
-              Apenas utilizadores verificados podem ser encontrados e convidados para uma nova negociação.
-            </p>
+            <p class="mt-1.5 text-center text-[10px] leading-relaxed text-slate-500">Apenas contas com identidade verificada.</p>
             @if (verifiedDirectory$ | async; as dirUsers) {
               @if (peerSearchControl.value.trim() && dirUsers.length === 0) {
-                <p class="mt-3 text-center text-xs text-slate-500">Nenhum utilizador verificado encontrado.</p>
+                <p class="mt-3 text-center text-xs text-slate-500">Nenhum usuário verificado com esse termo.</p>
               }
               @if (dirUsers.length > 0) {
                 <ul class="mt-3 space-y-1.5" role="list">
@@ -122,6 +148,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
                 </ul>
               }
             }
+            </div>
           </div>
           @if (counterpartLoading) {
             <p class="mt-4 text-xs text-slate-500">Carregando dados da outra parte…</p>
@@ -130,7 +157,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
             <div
               class="mx-auto mt-4 w-full max-w-md rounded-mm border border-violet-200/80 bg-gradient-to-b from-white to-mm-surface/40 px-4 py-3 text-left shadow-sm"
             >
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-violet-600">Outra parte selecionada</p>
+              <p class="text-[10px] text-slate-500">Contraparte</p>
               <p class="mt-1 text-sm font-semibold text-mm-ink">{{ selectedCounterpart.displayName }}</p>
               <p class="mt-0.5 text-[10px] text-slate-500">{{ selectedCounterpart.userId }}</p>
               @if (selectedCounterpart.verified) {
@@ -146,12 +173,17 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
             </div>
           }
           <div class="mt-5 flex justify-center">
-            <button type="button" (click)="startTicket()" class="neon-button px-6 py-2.5 text-sm">Começar agora</button>
+            <button
+              type="button"
+              (click)="startTicket()"
+              class="neon-button flex flex-col items-center px-6 py-2 text-sm leading-tight"
+            >
+              <span class="text-sm font-semibold">Continuar</span>
+              <span class="text-[11px] font-medium opacity-90">Dados e revisão a seguir</span>
+            </button>
           </div>
           @if (!profileVerified()) {
-            <p class="mt-3 text-xs text-slate-500">
-              Para criar ticket, primeiro conclua seu cadastro de perfil verificado.
-            </p>
+            <p class="mt-3 text-xs text-slate-500">Complete o perfil verificado (menu Perfil ou ao continuar) para publicar.</p>
           }
         }
       </article>
@@ -159,7 +191,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
       @if (formStarted) {
         <div class="flex flex-col gap-5 lg:grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start lg:gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
           <article class="glass-panel mx-auto w-full max-w-xl p-4 sm:p-5">
-            <h2 class="mm-page-h2 text-center">Monte sua negociação ideal</h2>
+            <h2 class="mm-page-h2 text-center">Dados da negociação</h2>
             @if (devMode) {
               <div class="mx-auto mt-2 flex max-w-lg flex-wrap items-center justify-center gap-2 rounded-mm border border-amber-200 bg-amber-50/90 px-2 py-1.5 text-[11px] text-amber-950">
                 <span>Ambiente local: campos com dados de exemplo.</span>
@@ -180,28 +212,26 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
               >
                 <button
                   type="button"
-                  class="flex w-full items-center gap-2.5 bg-gradient-to-r from-slate-50 to-white px-3 py-2.5 text-left hover:from-slate-100/90 sm:px-3.5"
+                  class="flex w-full items-center gap-3 bg-gradient-to-r from-slate-50 to-white px-3 py-3 text-left hover:from-slate-100/90 sm:px-3.5"
                   (click)="toggleSection('profile')"
                   [disabled]="!isStepUnlocked(1)"
                 >
                   <span
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xs font-bold text-white shadow-sm"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-sm font-bold leading-none text-white shadow-sm"
+                    aria-hidden="true"
                     >1</span
                   >
-                  <span class="min-w-0 flex-1">
-                    <span class="block text-[10px] font-semibold uppercase tracking-wide text-mm-purple-dark">Passo 1</span>
-                    <span class="block text-sm font-semibold text-slate-800">Como você participa</span>
-                  </span>
+                  <span class="min-w-0 flex-1 text-sm font-semibold leading-tight text-slate-800">Seu papel</span>
                   <svg
                     lucideChevronDown
-                    class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200"
+                    class="h-4 w-4 shrink-0 self-center text-slate-400 transition-transform duration-200"
                     [class.-rotate-90]="!openProfile"
                     aria-hidden="true"
                   />
                 </button>
                 @if (openProfile && isStepUnlocked(1)) {
                   <div class="mm-step-reveal space-y-3 border-t border-slate-100 px-3 py-3 sm:px-4">
-                    <span class="block text-center text-xs font-medium text-slate-600">Escolha seu objetivo</span>
+                    <span class="block text-center text-xs text-slate-600">Compra ou venda</span>
                     <div class="flex flex-wrap items-stretch justify-center gap-3">
                       <button
                         type="button"
@@ -244,21 +274,19 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
               >
                 <button
                   type="button"
-                  class="flex w-full items-center gap-2.5 bg-gradient-to-r from-slate-50 to-white px-3 py-2.5 text-left hover:from-slate-100/90 sm:px-3.5"
+                  class="flex w-full items-center gap-3 bg-gradient-to-r from-slate-50 to-white px-3 py-3 text-left hover:from-slate-100/90 sm:px-3.5"
                   (click)="toggleSection('negotiation')"
                   [disabled]="!isStepUnlocked(2)"
                 >
                   <span
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xs font-bold text-white shadow-sm"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-sm font-bold leading-none text-white shadow-sm"
+                    aria-hidden="true"
                     >2</span
                   >
-                  <span class="min-w-0 flex-1">
-                    <span class="block text-[10px] font-semibold uppercase tracking-wide text-mm-purple-dark">Passo 2</span>
-                    <span class="block text-sm font-semibold text-slate-800">Informações principais</span>
-                  </span>
+                  <span class="min-w-0 flex-1 text-sm font-semibold leading-tight text-slate-800">Valor e título</span>
                   <svg
                     lucideChevronDown
-                    class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200"
+                    class="h-4 w-4 shrink-0 self-center text-slate-400 transition-transform duration-200"
                     [class.-rotate-90]="!openNegotiation"
                     aria-hidden="true"
                   />
@@ -321,21 +349,19 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
               >
                 <button
                   type="button"
-                  class="flex w-full items-center gap-2.5 bg-gradient-to-r from-slate-50 to-white px-3 py-2.5 text-left hover:from-slate-100/90 sm:px-3.5"
+                  class="flex w-full items-center gap-3 bg-gradient-to-r from-slate-50 to-white px-3 py-3 text-left hover:from-slate-100/90 sm:px-3.5"
                   (click)="toggleSection('finalize')"
                   [disabled]="!isStepUnlocked(3)"
                 >
                   <span
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xs font-bold text-white shadow-sm"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-sm font-bold leading-none text-white shadow-sm"
+                    aria-hidden="true"
                     >3</span
                   >
-                  <span class="min-w-0 flex-1">
-                    <span class="block text-[10px] font-semibold uppercase tracking-wide text-mm-purple-dark">Passo 3</span>
-                    <span class="block text-sm font-semibold text-slate-800">Última revisão</span>
-                  </span>
+                  <span class="min-w-0 flex-1 text-sm font-semibold leading-tight text-slate-800">Revisão</span>
                   <svg
                     lucideChevronDown
-                    class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200"
+                    class="h-4 w-4 shrink-0 self-center text-slate-400 transition-transform duration-200"
                     [class.-rotate-90]="!openFinalize"
                     aria-hidden="true"
                   />
@@ -343,20 +369,18 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
                 @if (openFinalize && isStepUnlocked(3)) {
                   <div class="mm-step-reveal space-y-3 border-t border-slate-100 px-3 py-3 sm:px-4">
                     <div class="rounded-mm border border-slate-200 bg-slate-50/90 p-3 text-xs leading-relaxed text-slate-600">
-                      <p>
-                        <strong class="text-slate-700">Entrega:</strong> prazo, local e forma seguem o combinado entre vocês. Aqui você acompanha tudo com clareza e tranquilidade.
-                      </p>
+                      <p>Prazo, local e forma de entrega vocês combinam com a outra parte; aqui fica registrado o valor e o resumo comercial.</p>
                     </div>
 
                     <div class="rounded-mm border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600">
-                      <div class="border-b border-slate-100 pb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Visão geral</div>
-                      <p class="mt-2"><strong class="text-slate-800">Operação:</strong> {{ transactionSideLabel() }}</p>
-                      <p class="mt-1 text-slate-500">Você verá todos os detalhes de pagamento com total transparência na próxima etapa.</p>
-                      <p class="mt-2 text-slate-500">Depois de publicar, compartilhe com a outra pessoa e avancem juntos.</p>
+                      <p class="text-[10px] text-slate-500">Resumo</p>
+                      <p class="mt-2 text-slate-700">Operação: {{ transactionSideLabel() }}</p>
+                      <p class="mt-2 text-slate-500">A seguir, pagamento em custódia e entrega tratam-se na mesma sala de negociação.</p>
+                      <p class="mt-2 text-slate-500">Ao publicar, envie o convite e retome o alinhamento no chat.</p>
                     </div>
 
                     <div class="flex justify-center pt-0.5">
-                      <button type="button" (click)="saveTransaction()" class="neon-button px-6 py-2 text-xs font-semibold">Publicar negociação</button>
+                      <button type="button" (click)="saveTransaction()" class="neon-button px-6 py-2 text-xs font-semibold">Publicar</button>
                     </div>
                   </div>
                 }
@@ -366,7 +390,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
 
           <aside class="lg:sticky lg:top-24" aria-label="Dica do passo atual">
             <div class="glass-panel border-violet-100/80 p-3.5 text-[12px] leading-relaxed text-slate-600 shadow-sm sm:p-4">
-              <p class="section-label mb-1.5">Passo {{ currentHelpStep }} de 3</p>
+              <p class="section-label mb-1.5">Etapa {{ currentHelpStep }}/3</p>
               <h2 class="text-sm font-semibold text-mm-ink">{{ asideHintTitle }}</h2>
               @switch (currentHelpStep) {
                 @case (1) {
@@ -375,11 +399,9 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
                 }
                 @case (2) {
                   <p class="mt-2">{{ helpStep2Negotiation }}</p>
-                  <ul class="mt-2 list-disc space-y-1.5 pl-4 text-slate-500">
-                    <li><span class="text-slate-600">Título:</span> {{ helpFieldTitle }}</li>
-                    <li><span class="text-slate-600">Valor:</span> {{ helpFieldAmount }}</li>
-                    <li><span class="text-slate-600">Moeda:</span> {{ helpFieldCurrency }}</li>
-                  </ul>
+                  <p class="mt-2 text-slate-500">{{ helpFieldTitle }}</p>
+                  <p class="mt-1 text-slate-500">{{ helpFieldAmount }}</p>
+                  <p class="mt-1 text-slate-500">{{ helpFieldCurrency }}</p>
                 }
                 @case (3) {
                   <p class="mt-2">{{ helpStep3 }}</p>
@@ -395,11 +417,9 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
       @if (showCreateTransitionModal) {
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
           <div class="w-full max-w-sm rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-600">Criando ticket</p>
-            <h3 class="mt-1 text-base font-semibold text-mm-ink">Ticket de transação criado</h3>
-            <p class="mt-1 text-xs leading-relaxed text-slate-600">
-              Preparando a sala da negociação segura. Você será redirecionado automaticamente.
-            </p>
+            <p class="text-xs font-medium text-slate-500">Preparando a sala</p>
+            <h3 class="mt-1 text-base font-semibold text-mm-ink">Redirecionamento</h3>
+            <p class="mt-1 text-xs leading-relaxed text-slate-600">Abrindo a sala de negociação. Só um instante.</p>
             <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-violet-100">
               <div
                 class="h-full rounded-full bg-gradient-to-r from-mm-purple-deep via-mm-purple to-mm-accent transition-[width] duration-100 ease-linear"
@@ -415,9 +435,9 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
           <div class="w-full max-w-sm rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
             <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-600">Atenção</p>
-            <h3 class="mt-1 text-base font-semibold text-mm-ink">Perfil obrigatório para criar ticket</h3>
+            <h3 class="mt-1 text-base font-semibold text-mm-ink">Perfil verificado obrigatório</h3>
             <p class="mt-2 text-sm leading-relaxed text-slate-600">
-              Para criar uma transação com segurança, é necessário completar primeiro o cadastro do seu perfil.
+              Conclua a identidade no menu Perfil para publicar negociações com segurança.
             </p>
             <div class="mt-4 flex items-center justify-end gap-2">
               <button
@@ -443,10 +463,9 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
           <div class="w-full max-w-md rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
             <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-600">Perfil obrigatório</p>
-            <h3 class="mt-1 text-base font-semibold text-mm-ink">Verificação de perfil antes do ticket</h3>
+            <h3 class="mt-1 text-base font-semibold text-mm-ink">Verificação de identidade</h3>
             <p class="mt-1 text-xs leading-relaxed text-slate-600">
-              Para aumentar a segurança nas negociações, só usuários com cadastro verificado podem criar ticket.
-              Campos abaixo usam dados mockados para teste local.
+              Só contas com perfil verificado publicam negociações. Em ambiente local, os campos podem vir pré-preenchidos para teste.
             </p>
 
             <form class="mt-3 space-y-3" [formGroup]="profileVerificationForm" (ngSubmit)="confirmProfileVerification()">
@@ -496,7 +515,7 @@ const MOCK_VERIFIED_PROFILE: VerifiedProfileData = {
                   class="rounded-mm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                   (click)="prefillMockVerificationData()"
                 >
-                  Reaplicar mock
+                  Reaplicar exemplo
                 </button>
                 <button type="submit" class="neon-button px-4 py-2 text-xs font-semibold">
                   Validar perfil
@@ -517,9 +536,11 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
   private readonly authService = inject(AuthService);
   private readonly negotiationInbox = inject(NegotiationInboxService);
   private readonly notificationService = inject(NotificationService);
+  private readonly inviteCodeService = inject(InviteCodeService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly peerSearchControl = new FormControl('', { nonNullable: true });
+  readonly inviteCodeControl = new FormControl('', { nonNullable: true });
 
   readonly verifiedDirectory$ = this.peerSearchControl.valueChanges.pipe(
     startWith(this.peerSearchControl.value),
@@ -533,21 +554,15 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
   readonly devMode = isDevMode();
 
   /** Textos do aside (dica por passo ativo). */
-  readonly helpStep1Profile =
-    'Escolha seu papel e tenha clareza total do seu próximo movimento para negociar com confiança.';
-  readonly helpStep2Negotiation =
-    'Defina título, valor e moeda para apresentar sua proposta de forma profissional e irresistível.';
-  readonly helpStep3 =
-    'Revise tudo e publique sua negociação para avançar com segurança e praticidade.';
-  readonly helpFieldTitle =
-    'Use um nome objetivo e atrativo para valorizar seu anúncio e gerar confiança.';
-  readonly helpFieldAmount = 'Defina o valor total da negociação de forma clara.';
-  readonly helpFieldCurrency = 'Escolha a moeda da transação para manter tudo alinhado entre as partes.';
-  readonly helpSide = 'Seu papel define a melhor jornada para conduzir a negociação.';
-  readonly helpDeliveryNote =
-    'O combinado de entrega fica transparente para os dois lados, com mais segurança em cada etapa.';
-  readonly helpSummary =
-    'Último check antes de publicar: tudo pronto para uma negociação fluida e protegida.';
+  readonly helpStep1Profile = 'Diga se você compra ou vende; o convite abre o papel oposto para a outra pessoa.';
+  readonly helpStep2Negotiation = 'Título, valor e moeda formam o resumo que as duas partes vão ver na mesma sala.';
+  readonly helpStep3 = 'Revise e publique; o fluxo continua na sala de negociação.';
+  readonly helpFieldTitle = 'Nome curto e claro para o objeto da negociação.';
+  readonly helpFieldAmount = 'Valor total acordado ou a acordar nesta etapa.';
+  readonly helpFieldCurrency = 'Moeda usada no resumo do valor.';
+  readonly helpSide = 'O papel define quais botões e mensagens aparecem na sessão.';
+  readonly helpDeliveryNote = 'Prazo e forma de entrega ficam no alinhamento pelo chat; o painel acompanha o estado.';
+  readonly helpSummary = 'Após publicar, envie o convite e continue com a outra parte no mesmo fluxo.';
 
   /** Passo em foco: acordeão aberto; se todos fechados, o último liberado. */
   get currentHelpStep(): 1 | 2 | 3 {
@@ -563,13 +578,13 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
   get asideHintTitle(): string {
     switch (this.currentHelpStep) {
       case 1:
-        return 'Qual é o seu objetivo hoje?';
+        return 'Seu papel';
       case 2:
-        return 'Como sua proposta será apresentada?';
+        return 'Dados do resumo';
       case 3:
-        return 'Tudo pronto para publicar?';
+        return 'Antes de publicar';
       default:
-        return 'Dica';
+        return 'Orientação';
     }
   }
 
@@ -605,11 +620,9 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     dataConfirmation: [false, [Validators.requiredTrue]],
   });
 
-  /** Fluxo único (físico/digital fixo no código) — sem escolha no formulário. */
-  private readonly transactionType: TransactionType = 'physical';
   transactionSide: TransactionSide | null = null;
 
-  /** Utilizador escolhido na pesquisa (Transações) — convidado desta negociação. */
+  /** Usuário escolhido na pesquisa (Transações) — convidado desta negociação. */
   selectedCounterpart: PublicUserProfile | null = null;
   counterpartLoading = false;
   /** Mantém o id vindo da URL até o perfil público carregar (ex.: validação de perfil em paralelo). */
@@ -654,8 +667,8 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
           this.pendingInviteUserId = null;
           if (this.profileVerified()) {
             this.toastService.show(
-              'Utilizador selecionado',
-              `${p.displayName} será referenciado nesta negociação. Você pode começar agora.`,
+              'Participante selecionado',
+              `${p.displayName} entra como referência nesta negociação. Você pode começar agora.`,
               'info',
             );
           }
@@ -672,10 +685,22 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     this.selectedCounterpart = user;
     this.pendingInviteUserId = null;
     this.toastService.show(
-      'Utilizador selecionado',
-      `${user.displayName} será referenciado nesta negociação.`,
+      'Participante selecionado',
+      `${user.displayName} entra como referência nesta negociação.`,
       'info',
     );
+  }
+
+  openByInviteCode(): void {
+    const normalized = this.inviteCodeService.normalizeCode(this.inviteCodeControl.value);
+    if (!normalized) return;
+    const href = this.inviteCodeService.resolveInviteUrlByCode(normalized);
+    if (!href) {
+      this.toastService.show('Código inválido', 'Não encontramos uma negociação para este código.', 'warning');
+      return;
+    }
+    this.toastService.show('Convite localizado', `Abrindo negociação (${this.inviteCodeService.formatCode(normalized)}).`, 'success');
+    void this.router.navigateByUrl(href);
   }
 
   ticketErr(field: 'title' | 'amount'): string {
@@ -734,7 +759,7 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     this.profileVerificationForm.patchValue(existing ?? MOCK_VERIFIED_PROFILE);
     this.toastService.show(
       'Perfil verificado obrigatório',
-      'Conclua o cadastro mockado para liberar criação de ticket.',
+      'Conclua o cadastro (exemplos em ambiente local) para publicar.',
       'warning',
     );
   }
@@ -763,7 +788,7 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
       return;
     }
     this.showProfileVerificationModal = false;
-    this.toastService.show('Perfil validado', 'Cadastro verificado. Agora você pode criar tickets.', 'success');
+    this.toastService.show('Perfil validado', 'Já pode publicar negociações.', 'success');
     if (!this.selectedCounterpart && this.pendingInviteUserId) {
       this.counterpartLoading = true;
       this.negotiationInbox
@@ -774,7 +799,7 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
           this.pendingInviteUserId = null;
           this.counterpartLoading = false;
           if (!p) {
-            this.toastService.show('Perfil', 'Não foi possível carregar o utilizador convidado.', 'warning');
+            this.toastService.show('Perfil', 'Não foi possível carregar o convidado.', 'warning');
           }
           this.startTicket();
         });
@@ -800,7 +825,7 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     this.openProfile = false;
     this.openNegotiation = true;
     this.pulseFlash(2);
-    this.toastService.show('Excelente', 'Agora defina os detalhes da sua proposta.', 'info');
+    this.toastService.show('Tudo certo', 'Agora preencha os detalhes da proposta.', 'info');
   }
 
   /** Confirma o passo 2 (dados) e libera o passo 3. */
@@ -958,9 +983,9 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     }
     const side = this.transactionSide!;
     const queryParams = {
-      type: this.transactionType,
       side,
       gate,
+      window: String(PLATFORM_DISPUTE_WINDOW_HOURS),
       openInviteQr: '1',
       itemTitle: ticket.title,
       itemAmount: ticket.amount,
@@ -975,21 +1000,28 @@ export class CreateTransactionComponent implements OnDestroy, OnInit {
     const relativeUrl = this.router.serializeUrl(
       this.router.createUrlTree(['/transaction', transactionId], { queryParams }),
     );
+    const inviteCode = this.inviteCodeService.registerInvite({ href: relativeUrl, transactionId });
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        sessionStorage.setItem(`mm-tx-invite-code:${transactionId}`, inviteCode);
+      } catch {
+        /* quota / privado */
+      }
+    }
     if (this.selectedCounterpart) {
       this.notificationService.recordTransactionInvite({
         transactionId,
         title: ticket.title,
         counterpartUserId: this.selectedCounterpart.userId,
         counterpartName: this.selectedCounterpart.displayName,
-        creatorDisplayName: this.authService.userDisplayName() ?? 'Utilizador',
+        creatorDisplayName: this.authService.userDisplayName() ?? 'Usuário',
         relativeUrl,
+        inviteCode: this.inviteCodeService.formatCode(inviteCode),
       });
     }
     this.toastService.show(
       'Negociação publicada',
-      this.selectedCounterpart
-        ? 'O link da sala foi registado para o convidado e nas suas notificações.'
-        : 'Estamos levando você para a sala da negociação.',
+      `Código do convite: ${this.inviteCodeService.formatCode(inviteCode)}.`,
       'success',
     );
     this.startCreateToTransactionTransition(() => {

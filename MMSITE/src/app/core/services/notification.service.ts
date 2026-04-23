@@ -59,6 +59,7 @@ export class NotificationService {
     counterpartName: string;
     creatorDisplayName: string;
     relativeUrl: string;
+    inviteCode?: string;
   }): void {
     const senderKey = this.auth.getNotificationRecipientKey();
     const shortTitle = this.truncate(params.title, 42);
@@ -66,7 +67,9 @@ export class NotificationService {
       id: `ntf-${randomHex(8)}`,
       kind: 'invite_sent',
       title: 'Link enviado',
-      body: `${params.counterpartName} · ${params.transactionId} · ${shortTitle}`,
+      body: params.inviteCode
+        ? `${params.counterpartName} · Código ${params.inviteCode} · ${shortTitle}`
+        : `${params.counterpartName} · ${params.transactionId} · ${shortTitle}`,
       createdAt: new Date().toISOString(),
       read: false,
       transactionId: params.transactionId,
@@ -76,7 +79,9 @@ export class NotificationService {
       id: `ntf-${randomHex(8)}`,
       kind: 'invite_received',
       title: 'Convite',
-      body: `${this.truncate(params.creatorDisplayName, 24)} · ${shortTitle}`,
+      body: params.inviteCode
+        ? `${this.truncate(params.creatorDisplayName, 24)} · Código ${params.inviteCode}`
+        : `${this.truncate(params.creatorDisplayName, 24)} · ${shortTitle}`,
       createdAt: new Date().toISOString(),
       read: false,
       transactionId: params.transactionId,

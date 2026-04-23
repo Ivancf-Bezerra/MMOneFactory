@@ -12,12 +12,12 @@ import { ToastService } from '../../../../core/services/toast.service';
   selector: 'app-catalog-home',
   imports: [CurrencyPipe, DatePipe, FormsModule, RouterLink],
   template: `
-    <section class="mm-page-shell space-y-5">
-      <header class="glass-panel flex flex-wrap items-center justify-between gap-3 p-5 sm:p-6">
-        <div>
+    <section class="mm-page-shell min-w-0 space-y-5">
+      <header class="mm-page-header glass-panel p-4 sm:p-5">
+        <div class="min-w-0 space-y-1.5">
           <h1 class="mm-page-h1">Catálogo de compra e venda</h1>
-          <p class="mt-0.5 mm-page-lead">
-            Só para busca: a negociação aparece no painel depois que você criá-la na tela “Nova transação”.
+          <p class="mm-page-lead">
+            Aqui é só referência. Para abrir negociação com proteção, use <span class="font-medium text-slate-600">Nova transação</span> no menu.
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                   <p class="text-xs text-slate-500">{{ offer.createdAt | date: 'shortDate' }}</p>
                 </div>
                 <div class="mt-3 flex gap-2">
-                  <a routerLink="/transaction/create" class="neon-button inline-flex px-3 py-2 text-center text-xs">Iniciar transação</a>
+                  <a routerLink="/transaction/create" class="neon-button inline-flex shrink-0 px-3 py-2 text-center text-xs">Nova transação</a>
                 </div>
               </article>
             }

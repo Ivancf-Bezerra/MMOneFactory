@@ -16,31 +16,31 @@ import { environment } from '../../../../../environments/environment';
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="mm-auth-shell">
-      <div class="mb-6 text-center">
-        <span class="mb-3 inline-grid h-12 w-12 place-content-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xl font-bold text-white shadow-sm ring-1 ring-violet-200/70">M</span>
+      <div class="mm-auth-brand">
+        <span class="inline-grid h-12 w-12 place-content-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xl font-bold text-white shadow-sm ring-1 ring-violet-200/70">M</span>
         <h1 class="mm-page-h1">Bem-vindo de volta</h1>
-        <p class="mt-1 mm-page-lead">Entre para negociar com confiança e acompanhar cada etapa com transparência.</p>
+        <p class="mm-page-lead">Entre para negociar com confiança e acompanhar cada etapa com transparência.</p>
       </div>
 
       @if (localDemoAuth && !showLocalApiCredentialsHint) {
         <div
-          class="mb-5 rounded-mm-xl border-2 border-amber-400/90 bg-gradient-to-br from-amber-50 via-white to-violet-50 px-4 py-4 shadow-md"
+          class="flex flex-col space-y-3 rounded-mm-xl border-2 border-amber-400/90 bg-gradient-to-br from-amber-50 via-white to-violet-50 p-4 shadow-md sm:p-5"
           role="region"
           aria-label="Acesso de teste GitHub Pages"
         >
           <p class="text-center text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900/85">GitHub Pages · não é produção</p>
-          <h2 class="mt-1.5 text-center text-base font-semibold text-mm-ink">Acesso de teste (administrador)</h2>
-          <p class="mx-auto mt-2 max-w-sm text-center text-[11px] leading-relaxed text-slate-600">
+          <h2 class="text-center text-base font-semibold text-mm-ink">Acesso de teste (administrador)</h2>
+          <p class="mx-auto max-w-sm text-center text-[11px] leading-relaxed text-slate-600">
             Sessão só neste navegador. Use para navegar pela interface; não há API de negociações por trás neste site estático.
           </p>
-          <button type="button" class="neon-button mt-4 w-full py-2.5 text-sm" (click)="enterAdminDemo()">
+          <button type="button" class="neon-button w-full py-2.5 text-sm" (click)="enterAdminDemo()">
             Entrar como administrador (demo)
           </button>
         </div>
       }
 
-      <div class="glass-panel p-5 sm:p-6">
-        <form class="space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="glass-panel flex flex-col space-y-5 p-4 sm:p-5">
+        <form class="space-y-5" [formGroup]="form" (ngSubmit)="onSubmit()">
           <label class="block">
             <span class="mb-1 block text-sm font-medium text-slate-700">E-mail</span>
             <input
@@ -77,37 +77,39 @@ import { environment } from '../../../../../environments/environment';
         </form>
 
         @if (localDemoAuth && showLocalApiCredentialsHint) {
-          <p class="mt-3 rounded-mm border border-violet-100 bg-mm-surface/60 px-3 py-2 text-left text-[11px] leading-relaxed text-slate-600">
-            <span class="font-semibold text-mm-purple-dark">Com a API local</span>
-            (pasta MMAPI, <code class="rounded bg-white/80 px-1">dotnet run</code>, proxy do
-            <code class="rounded bg-white/80 px-1">ng serve</code>): e-mail
-            <code class="rounded bg-white/80 px-1">{{ localDemoEmail }}</code>
-            · senha <code class="rounded bg-white/80 px-1">{{ localDemoPassword }}</code>
-          </p>
-          <button
-            type="button"
-            class="mt-2 w-full rounded-mm border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-950 transition hover:bg-amber-100"
-            (click)="enterAdminDemo()"
-          >
-            Entrar como administrador (demo, sem API)
-          </button>
+          <div class="space-y-2">
+            <p class="rounded-mm border border-violet-100 bg-mm-surface/60 px-3 py-2.5 text-left text-[11px] leading-relaxed text-slate-600">
+              <span class="font-semibold text-mm-purple-dark">Com a API local</span>
+              (pasta MMAPI, <code class="rounded bg-white/80 px-1">dotnet run</code>, proxy do
+              <code class="rounded bg-white/80 px-1">ng serve</code>): e-mail
+              <code class="rounded bg-white/80 px-1">{{ localDemoEmail }}</code>
+              · senha <code class="rounded bg-white/80 px-1">{{ localDemoPassword }}</code>
+            </p>
+            <button
+              type="button"
+              class="w-full rounded-mm border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-950 transition hover:bg-amber-100"
+              (click)="enterAdminDemo()"
+            >
+              Entrar como administrador (demo, sem API)
+            </button>
+          </div>
         }
 
         <button
           type="button"
-          class="mt-2 w-full rounded-mm border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+          class="w-full rounded-mm border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           (click)="signInWithClerk()"
         >
           Continuar com Google
         </button>
 
-        <p class="mt-5 border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
+        <p class="border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
           Novo por aqui?
           <a routerLink="/register" class="font-semibold text-mm-purple-dark hover:underline">Crie sua conta grátis</a>
         </p>
       </div>
 
-      <p class="mt-4 text-center text-xs text-slate-400">
+      <p class="text-center text-xs text-slate-400">
         Sua experiência protegida do início ao fim
       </p>
     </section>
