@@ -1,0 +1,897 @@
+﻿<section
+  class="mm-page-shell flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden px-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:gap-3 sm:px-4 sm:pb-3 lg:flex-row lg:items-stretch lg:justify-center lg:gap-6"
+>
+  <div
+    class="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-4 max-sm:flex-none max-sm:min-h-0 lg:mx-0 lg:flex-1 lg:min-h-0 lg:max-w-7xl lg:flex-row lg:items-stretch lg:gap-6"
+  >
+  <div
+    class="glass-panel order-1 flex w-full min-w-0 flex-col max-sm:min-h-0 max-sm:overflow-visible lg:order-none lg:h-full lg:min-h-0 lg:flex-1 lg:overflow-hidden"
+    [ngClass]="isFlowLocked() ? 'ring-2 ring-emerald-300/55' : ''"
+  >
+    <div
+      class="relative z-10 flex shrink-0 flex-col gap-1.5 border-b border-violet-100/80 bg-white/95 px-2 py-2 backdrop-blur-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-2 sm:px-3 sm:py-2.5"
+      role="toolbar"
+      aria-label="Ações do chat"
+    >
+      <div class="flex min-w-0 flex-row flex-nowrap items-stretch gap-1.5 sm:contents">
+      <a
+        routerLink="/transaction/create"
+        class="inline-flex min-h-9 min-w-0 flex-1 basis-0 items-center justify-center rounded-mm border border-amber-300/80 bg-gradient-to-b from-amber-50/95 to-mm-surface/50 px-1.5 text-center text-[11px] font-semibold leading-tight text-mm-ink no-underline shadow-sm transition hover:brightness-[1.02] active:scale-[0.98] sm:flex-none sm:min-w-[5.5rem] sm:px-3 sm:text-xs"
+      >
+        Nova
+      </a>
+      <button
+        type="button"
+        class="inline-flex min-h-9 min-w-0 flex-1 basis-0 items-center justify-center rounded-mm border border-red-200/90 bg-red-50/95 px-1.5 text-[11px] font-semibold leading-tight text-red-900 shadow-sm transition hover:bg-red-100/90 active:scale-[0.98] sm:flex-none sm:min-w-[5.5rem] sm:px-3 sm:text-xs"
+        (click)="cancelNegotiation()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn-ghost inline-flex min-h-9 min-w-0 flex-1 basis-0 items-center justify-center px-1.5 text-[11px] font-semibold leading-tight active:scale-[0.98] sm:flex-none sm:min-w-[5.5rem] sm:px-3 sm:text-xs"
+        (click)="exitToDashboard()"
+        title="Voltar ao painel (continua com a sessão iniciada)"
+      >
+        Sair
+      </button>
+      </div>
+      @if (devMode && flowStep === 'delivery_confirmed' && !isFlowLocked()) {
+        <button
+          type="button"
+          class="inline-flex min-h-9 w-full items-center justify-center rounded-mm border border-violet-200/90 bg-mm-surface/90 px-2.5 text-[11px] font-semibold text-mm-purple-dark shadow-sm transition hover:border-violet-300 hover:bg-mm-surface active:scale-[0.98] sm:w-auto sm:px-3"
+          (click)="simulateCounterpartyMutualConfirm()"
+          title="Confirma o lado que faltar (comprador ou vendedor) nesta sessão"
+        >
+          Outra parte: confirmar
+        </button>
+      }
+      @if (devMode && !isFlowLocked()) {
+        <button
+          type="button"
+          class="inline-flex min-h-9 w-full items-center justify-center rounded-mm border border-amber-300/90 bg-amber-50 px-2.5 text-[11px] font-semibold text-amber-900 shadow-sm transition hover:border-amber-400 hover:bg-amber-100 active:scale-[0.98] sm:w-auto sm:px-3"
+          (click)="forceCompleteForFeedbackTest()"
+          title="Atalho de desenvolvimento para validar o modal de avaliação"
+        >
+          Teste: concluir transação
+        </button>
+      }
+    </div>
+
+    <header class="relative z-0 flex shrink-0 flex-col gap-3 border-b border-violet-100/70 bg-gradient-to-r from-white via-mm-surface/40 to-white px-3 pb-3 pt-3 sm:gap-2 sm:px-4 sm:pb-2.5 sm:pt-2.5">
+      @if (inviteAccessBlocked) {
+        <div
+          class="rounded-mm border border-amber-300/90 bg-amber-50/95 px-3 py-2 text-[11px] leading-snug text-amber-950 shadow-sm"
+          role="alert"
+        >
+          <strong class="font-semibold">Convite inválido ou incompleto.</strong>
+          Só é possível continuar com o link completo (inclui o parâmetro de segurança). Não compartilhe prints da barra de endereço cortados; envie o link por WhatsApp, e-mail ou
+          “copiar link” na própria tela.
+        </div>
+      }
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-2.5">
+        <div class="flex min-w-0 items-start gap-2.5">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-xs font-bold text-white shadow-md"
+          aria-hidden="true"
+        >M</div>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <h1 class="text-base font-semibold leading-tight text-mm-ink sm:text-lg">Seu espaço de negociação</h1>
+            @if (isFlowLocked()) {
+              <span class="hud-chip shrink-0 text-[9px] uppercase tracking-wide">Concluída</span>
+            }
+          </div>
+          <p class="mt-1 text-[11px] leading-relaxed text-slate-600 sm:mt-0.5 sm:text-xs">Acompanhe sua negociação em tempo real pelo chat.</p>
+        </div>
+        </div>
+        <div class="flex shrink-0 items-start self-start sm:self-auto">
+          <app-status-badge [status]="currentStatus" />
+        </div>
+      </div>
+    </header>
+
+    <div class="relative z-0 h-1 w-full shrink-0 bg-mm-surface">
+      <div
+        class="h-full bg-gradient-to-r from-mm-purple-deep via-mm-purple to-mm-accent transition-all duration-300"
+        [style.width.%]="guideProgressPercent()"
+      ></div>
+    </div>
+
+    <div
+      #chatScrollArea
+      class="mm-touch-scroll relative z-0 flex min-w-0 flex-col gap-2 overflow-x-hidden bg-white px-3 py-3 max-sm:flex-none max-sm:overflow-y-visible max-sm:overscroll-auto sm:px-3 sm:py-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-y-contain sm:[scrollbar-gutter:stable]"
+      role="log"
+      aria-label="Mensagens e passos da conversa"
+    >
+        @for (message of chatMessages; track message.id) {
+          @if (message.productCard) {
+            <div class="mx-1 my-2 max-w-full shrink-0 sm:mx-1.5 sm:my-2.5" role="article" aria-label="Resumo do pedido">
+              <div
+                class="w-full rounded-mm border-2 border-violet-200/90 bg-gradient-to-br from-white via-mm-surface/40 to-violet-50/90 px-3.5 py-3 shadow-[0_6px_22px_-8px_rgba(108,92,231,0.22),0_2px_10px_-4px_rgba(15,23,42,0.08)] ring-1 ring-inset ring-white/70 sm:px-4 sm:py-3.5"
+              >
+                <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-mm-purple-dark">Resumo do pedido</p>
+                <p class="mt-1.5 text-sm font-semibold leading-snug text-slate-900">{{ message.productCard.title }}</p>
+                <p class="mt-2 text-lg font-bold tabular-nums text-mm-purple-dark">{{ message.productCard.amountLabel }}</p>
+                <dl class="mt-3 space-y-2 text-[11px] leading-snug text-slate-700">
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-violet-100/80 pt-2">
+                    <dt class="font-medium text-slate-500">Tipo de negócio</dt>
+                    <dd class="text-right font-semibold text-slate-800">{{ message.productCard.typeLabel }}</dd>
+                  </div>
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <dt class="font-medium text-slate-500">Entrega</dt>
+                    <dd class="text-right font-semibold text-slate-800">{{ message.productCard.deliveryLabel }}</dd>
+                  </div>
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <dt class="font-medium text-slate-500">Comprador</dt>
+                    <dd class="text-right font-semibold text-slate-800">{{ message.productCard.buyerLabel }}</dd>
+                  </div>
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <dt class="font-medium text-slate-500">Vendedor</dt>
+                    <dd class="text-right font-semibold text-slate-800">{{ message.productCard.sellerLabel }}</dd>
+                  </div>
+                  @if (message.productCard.disputeWindowLine) {
+                    <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-violet-100/80 pt-2">
+                      <dt class="font-medium text-slate-500">Proteção digital</dt>
+                      <dd class="text-right font-semibold text-slate-800">{{ message.productCard.disputeWindowLine }}</dd>
+                    </div>
+                  }
+                </dl>
+                <p class="mt-2.5 text-right text-[8px] tabular-nums text-slate-400">{{ message.time }}</p>
+              </div>
+            </div>
+          } @else if (message.sender === 'chatbot' && isWelcomeBannerMessage(message)) {
+            <div class="mx-1 my-1.5 max-w-full shrink-0 sm:mx-1.5 sm:my-2">
+              <div
+                class="w-full rounded-none border-2 border-amber-400/80 bg-gradient-to-br from-amber-100/95 via-white to-violet-100/55 px-3.5 py-3 shadow-[0_6px_22px_-6px_rgba(245,158,11,0.28),0_2px_10px_-4px_rgba(108,92,231,0.12)] ring-1 ring-inset ring-white/70 sm:px-4 sm:py-3.5"
+                role="article"
+                aria-label="Mensagem padrão ao abrir o chat"
+              >
+                <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-amber-950/90">Ao abrir esta conversa</p>
+                <p class="mt-2 text-[10px] leading-relaxed text-slate-700">{{ message.text }}</p>
+                <p class="mt-2.5 text-right text-[8px] tabular-nums text-amber-900/45">{{ message.time }}</p>
+              </div>
+            </div>
+          } @else if (message.sender === 'chatbot') {
+            <div class="flex w-full min-w-0 shrink-0 justify-center sm:justify-end sm:px-0.5">
+              <div
+                class="w-full min-w-0 max-w-[min(100%,24rem)] rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-2.5 shadow-sm sm:py-2"
+              >
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <p class="text-[13px] leading-snug text-slate-800">{{ message.text }}</p>
+                <p class="mt-1 text-right text-[10px] tabular-nums text-amber-900/50">{{ message.time }}</p>
+              </div>
+            </div>
+          } @else if (isMyMessage(message)) {
+            <div class="flex w-full min-w-0 shrink-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,24rem)] rounded-mm rounded-tr-sm bg-gradient-to-br from-mm-purple-deep via-mm-purple to-mm-purple-deep px-3 py-2.5 shadow-md shadow-violet-200/40 sm:py-2">
+                <p class="text-[13px] leading-snug text-white">{{ message.text }}</p>
+                <p class="mt-0.5 text-right text-[10px] tabular-nums text-violet-100">{{ message.time }}</p>
+              </div>
+            </div>
+          } @else {
+            <div class="flex w-full min-w-0 shrink-0 justify-center sm:justify-start sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,24rem)] rounded-mm rounded-tl-sm border border-violet-200/80 bg-gradient-to-br from-white to-mm-surface/35 px-3 py-2.5 shadow-sm sm:py-2">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-mm-purple-dark">{{ counterpartyShortLabel() }}</p>
+                <p class="text-[13px] leading-snug text-slate-800">{{ message.text }}</p>
+                <p class="mt-0.5 text-[10px] tabular-nums text-slate-400">{{ message.time }}</p>
+              </div>
+            </div>
+          }
+        }
+
+        <div class="flex shrink-0 flex-col gap-2">
+        @switch (flowStep) {
+          @case ('ticket_created') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div
+                class="w-full min-w-0 max-w-[min(100%,28rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5"
+              >
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                @if (isNegotiationHost) {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (quem abriu a negociação):</span>
+                    envie o link para a outra pessoa entrar nesta mesma tela como
+                    {{ transactionSide === 'sell' ? 'comprador' : 'vendedor' }}.
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    Use <span class="font-medium text-slate-600">Enviar link</span> ou o QR. Só quem criou a negociação precisa compartilhar o convite.
+                  </p>
+                  <button
+                    type="button"
+                    class="w-full rounded-mm border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:border-violet-300 hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-50"
+                    [disabled]="flowInteractionDisabled()"
+                    (click)="sendInviteLink()"
+                  >
+                    Enviar link
+                  </button>
+                  @if (showInviteQrPanel) {
+                    <div class="flex flex-col gap-2 rounded-mm border border-slate-200/90 bg-slate-50/90 p-3">
+                      @if (inviteQrDataUrl) {
+                        <img
+                          [src]="inviteQrDataUrl"
+                          alt="QR code com o link de acesso"
+                          class="mx-auto h-auto w-[min(100%,14rem)] rounded-lg border border-white bg-white p-1.5 shadow-sm sm:w-[min(100%,16rem)]"
+                          width="256"
+                          height="256"
+                        />
+                      } @else {
+                        <span
+                          class="mx-auto aspect-square w-[min(100%,14rem)] animate-pulse rounded-lg bg-slate-200 sm:w-[min(100%,16rem)]"
+                          aria-hidden="true"
+                        ></span>
+                      }
+                      <p class="text-center text-[11px] leading-relaxed text-slate-500">
+                        QR gerado nesta página. A outra parte escaneia para abrir o mesmo link.
+                      </p>
+                    </div>
+                  }
+                  <button
+                    type="button"
+                    class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                    [disabled]="flowInteractionDisabled()"
+                    (click)="confirmTicketCreated()"
+                  >
+                    Já enviei o convite — continuar
+                  </button>
+                } @else {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (você entrou pelo convite):</span>
+                    você está nesta negociação como
+                    <span class="font-semibold">{{ transactionSide === 'buy' ? 'comprador' : 'vendedor' }}</span>.
+                    Quem abriu a negociação envia o link; aqui você só confirma que já está na mesma conversa.
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    Se ainda não recebeu o convite, peça o link completo à outra pessoa antes de seguir.
+                  </p>
+                  <button
+                    type="button"
+                    class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                    [disabled]="flowInteractionDisabled()"
+                    (click)="confirmTicketCreatedAsGuest()"
+                  >
+                    Estou na negociação — continuar
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('ticket_confirmed') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                @if (transactionSide === 'buy') {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
+                    confira no resumo da transação (painel ao lado ou abaixo) tipo, entrega, seu papel e quem entra pelo link; na próxima etapa você paga com proteção.
+                  </p>
+                } @else {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
+                    confira no resumo da transação o que será entregue e como; depois o comprador paga na etapa seguinte e o fluxo segue até as confirmações finais.
+                  </p>
+                }
+                <button
+                  type="button"
+                  class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="flowInteractionDisabled()"
+                  (click)="confirmTicketDetails()"
+                >
+                  {{ transactionSide === 'buy' ? 'Confiro como comprador — próximo' : 'Confiro como vendedor — próximo' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @case ('payment_escrow') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,24rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                @if (transactionSide === 'buy') {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
+                    escolha a forma de pagamento, gere o QR, conclua no app do banco ou da carteira e confirme aqui quando terminar.
+                  </p>
+                } @else {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
+                    aguarde o comprador gerar o QR e pagar. Você vê o mesmo código aqui, mas
+                    <span class="font-semibold">não</span>
+                    escolhe método nem confirma o pagamento por ele.
+                  </p>
+                }
+
+                @if (transactionSide === 'buy') {
+                  <p class="text-[11px] font-medium text-slate-700">Como você vai pagar?</p>
+                  <div class="grid grid-cols-1 gap-2.5 min-[380px]:grid-cols-2 sm:grid-cols-2 sm:gap-2 md:grid-cols-3">
+                    @for (opt of escrowPaymentOptions; track opt.id) {
+                      <button
+                        type="button"
+                        [disabled]="flowInteractionDisabled()"
+                        (click)="selectEscrowPaymentMethod(opt.id)"
+                        class="rounded-mm border px-2 py-2 text-left text-[11px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
+                        [class.border-mm-purple]="selectedEscrowPayment === opt.id"
+                        [class.bg-mm-surface]="selectedEscrowPayment === opt.id"
+                        [class.shadow-sm]="selectedEscrowPayment === opt.id"
+                        [class.border-slate-200]="selectedEscrowPayment !== opt.id"
+                        [class.bg-slate-50]="selectedEscrowPayment !== opt.id"
+                      >
+                        <span class="flex text-mm-purple">
+                          @switch (opt.id) {
+                            @case ('pix') {
+                              <svg lucideQrCode class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                            }
+                            @case ('credit_card') {
+                              <svg lucideCreditCard class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                            }
+                            @case ('debit_card') {
+                              <svg lucideBanknote class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                            }
+                            @case ('boleto') {
+                              <svg lucideBarcode class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                            }
+                            @case ('wallet') {
+                              <svg lucideWallet class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                            }
+                          }
+                        </span>
+                        <span class="mt-0.5 block leading-tight text-mm-ink">{{ opt.label }}</span>
+                        <span class="mt-0.5 block font-normal leading-tight text-slate-500">{{ opt.hint }}</span>
+                      </button>
+                    }
+                  </div>
+                  @if (selectedEscrowPayment) {
+                    <button
+                      type="button"
+                      class="mm-btn-soft border-slate-300 bg-gradient-to-r from-mm-surface to-violet-50 font-semibold text-mm-ink disabled:opacity-60"
+                      [disabled]="paymentQrGenerating || flowInteractionDisabled()"
+                      (click)="generateEscrowPaymentQr()"
+                    >
+                      {{ paymentQrGenerating ? 'Gerando QR…' : 'Gerar QR para pagar aqui no chat' }}
+                    </button>
+                  }
+                  @if (paymentQrDataUrl) {
+                    <button
+                      type="button"
+                      class="neon-button w-full py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                      [disabled]="flowInteractionDisabled()"
+                      (click)="confirmPaymentEscrow()"
+                    >
+                      Já paguei — continuar
+                    </button>
+                  }
+                } @else {
+                  <p class="text-xs text-slate-600">
+                    Aguarde o comprador escolher a forma de pagamento. O QR aparecerá aqui para as duas partes acompanharem.
+                  </p>
+                }
+
+                @if (paymentQrDataUrl) {
+                  <div class="rounded-mm border border-violet-100/90 bg-mm-surface/50 p-2.5 shadow-sm">
+                    <p class="text-center text-[10px] font-medium text-slate-600">{{ escrowPaymentMethodLabel() }}</p>
+                    <img [src]="paymentQrDataUrl" alt="QR code para pagamento com dinheiro protegido na plataforma" class="mx-auto mt-1.5 size-40 rounded-lg bg-white p-1 shadow-sm" width="160" height="160" />
+                    <p class="mt-1.5 line-clamp-2 break-all font-mono text-[9px] text-slate-400">{{ paymentPayloadPreview() }}</p>
+                  </div>
+                  <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
+                    <p class="mb-1 text-[10px] leading-snug text-slate-500">{{ stepAttachmentHint('payment_escrow') }}</p>
+                    @if (evidencesForStep('payment_escrow').length > 0) {
+                      <ul class="mb-2 max-h-20 space-y-0.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/80 p-1.5 text-[9px] text-slate-600">
+                        @for (ev of evidencesForStep('payment_escrow'); track ev.id) {
+                          <li class="truncate" [title]="ev.title">{{ ev.title }}</li>
+                        }
+                      </ul>
+                    }
+                    <button
+                      type="button"
+                      class="inline-flex w-full items-center justify-center gap-1.5 rounded-mm border border-dashed border-violet-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-mm-purple-dark shadow-sm transition hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-40"
+                      [disabled]="!canAttachInStep('payment_escrow')"
+                      (click)="openStepAttachmentPicker('payment_escrow')"
+                    >
+                      <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      {{ transactionSide === 'buy' ? 'Anexar comprovante de pagamento' : 'Anexar registro opcional' }}
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('delivery') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,24rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+
+                @if (transactionSide === 'sell') {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
+                    @if (transactionType === 'digital') {
+                      registre que liberou o acesso digital; depois confirme “Tudo entregue” para seguir.
+                    } @else {
+                      gere o código de entrega. Só o comprador confirma o recebimento (leitura do código) na sessão dele.
+                    }
+                  </p>
+
+                  @if (transactionType === 'digital') {
+                    <p class="text-xs text-slate-500">Dica: tipo de prova, descrição curta e salvar. Depois “Tudo entregue”.</p>
+                    <p class="text-[11px] font-medium text-slate-700">Que tipo de registro?</p>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" (click)="setEvidenceCategory('print')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('print')">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideCamera class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Print</p>
+                        <p class="line-clamp-1 font-normal text-slate-500">Tela ou log</p>
+                      </button>
+                      <button type="button" (click)="setEvidenceCategory('ownership')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('ownership')">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideKey class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Conta</p>
+                        <p class="line-clamp-1 font-normal text-slate-500">Titular</p>
+                      </button>
+                      <button type="button" (click)="setEvidenceCategory('other')" [disabled]="flowInteractionDisabled()" [class]="evidenceCategoryCardClass('other')">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucidePaperclip class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Outro</p>
+                        <p class="line-clamp-1 font-normal text-slate-500">Observação</p>
+                      </button>
+                    </div>
+                    <input type="text" placeholder="Ex.: print da tela de ativacao..." class="input-flat text-sm" [formControl]="evidenceControl" [class.input-error]="evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled" />
+                    @if (evidenceControl.touched && evidenceControl.invalid && evidenceControl.enabled) {
+                      <p class="text-xs text-red-600">Escreva pelo menos 4 caracteres.</p>
+                    }
+                    @if (evidencesForStep('delivery').length > 0) {
+                      <ul class="max-h-24 space-y-1 overflow-auto rounded-mm border border-slate-100 bg-slate-50/80 p-2 text-xs">
+                        @for (item of evidencesForStep('delivery'); track item.id) {
+                          <li><span class="font-medium">{{ item.title }}</span></li>
+                        }
+                      </ul>
+                    }
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="addDigitalEvidence()" [class]="actionCardClass(!flowInteractionDisabled())">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideReceipt class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Salvar registro</p>
+                      </button>
+                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="confirmDigitalAccess()" [class]="primaryReleaseCardClass()">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideCheck class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Tudo entregue</p>
+                      </button>
+                    </div>
+                  }
+
+                  @if (transactionType === 'physical') {
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" [disabled]="flowInteractionDisabled()" (click)="generateDeliveryQr()" [class]="actionCardClass(!flowInteractionDisabled())">
+                        <span class="grid place-content-center text-mm-purple-dark"><svg lucideSmartphone class="h-5 w-5 shrink-0" aria-hidden="true" /></span>
+                        <p class="leading-tight">Gerar código de entrega</p>
+                      </button>
+                    </div>
+                    @if (deliveryQrToken) {
+                      <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
+                        <p class="text-slate-600">Mostre este código ao comprador — ele confirma o recebimento na tela dele:</p>
+                        <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
+                      </div>
+                    }
+                  }
+
+                  <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
+                    <p class="mb-1 text-[10px] leading-snug text-slate-500">{{ stepAttachmentHint('delivery') }}</p>
+                    @if (evidencesForStep('delivery').length > 0) {
+                      <ul class="mb-2 max-h-20 space-y-0.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/80 p-1.5 text-[9px] text-slate-600">
+                        @for (ev of evidencesForStep('delivery'); track ev.id) {
+                          <li class="truncate" [title]="ev.title">{{ ev.title }}</li>
+                        }
+                      </ul>
+                    }
+                    <button
+                      type="button"
+                      class="inline-flex w-full items-center justify-center gap-1.5 rounded-mm border border-dashed border-violet-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-mm-purple-dark shadow-sm transition hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-40"
+                      [disabled]="!canAttachInStep('delivery')"
+                      (click)="openStepAttachmentPicker('delivery')"
+                    >
+                      <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      Anexar envio / rastreio (opcional)
+                    </button>
+                  </div>
+                } @else {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
+                    @if (transactionType === 'digital') {
+                      aguarde o vendedor registrar a entrega do acesso. Quando ele concluir, o fluxo segue para a confirmação final de ambos.
+                    } @else {
+                      aguarde o código de entrega. Quando o vendedor gerar, confirme aqui que leu o código ou recebeu o produto.
+                    }
+                  </p>
+
+                  @if (transactionType === 'physical') {
+                    @if (deliveryQrToken) {
+                      <div class="space-y-2 rounded-mm border border-violet-200/80 bg-mm-surface/90 p-2.5 text-xs shadow-sm">
+                        <p class="text-slate-600">Código informado pelo vendedor — confirme após receber ou conferir:</p>
+                        <p class="font-mono text-sm text-mm-ink">{{ deliveryQrToken }}</p>
+                        <button
+                          type="button"
+                          [disabled]="flowInteractionDisabled()"
+                          (click)="simulateQrScan()"
+                          class="mm-btn-soft disabled:cursor-not-allowed"
+                        >
+                          Confirmar recebimento / leitura do código
+                        </button>
+                      </div>
+                    } @else {
+                      <p class="text-xs text-slate-500">Ainda não há código — o vendedor gera na sessão dele após o pagamento em custódia.</p>
+                    }
+                  }
+
+                  @if (transactionType === 'digital') {
+                    <p class="text-xs text-slate-500">Nesta etapa, quem registra a liberação do acesso é o vendedor.</p>
+                  }
+
+                  <div class="mt-2 border-t border-dashed border-violet-200/70 pt-2">
+                    <p class="mb-1 text-[10px] leading-snug text-slate-500">{{ stepAttachmentHint('delivery') }}</p>
+                    @if (evidencesForStep('delivery').length > 0) {
+                      <ul class="mb-2 max-h-20 space-y-0.5 overflow-y-auto rounded border border-slate-100 bg-slate-50/80 p-1.5 text-[9px] text-slate-600">
+                        @for (ev of evidencesForStep('delivery'); track ev.id) {
+                          <li class="truncate" [title]="ev.title">{{ ev.title }}</li>
+                        }
+                      </ul>
+                    }
+                    <button
+                      type="button"
+                      class="inline-flex w-full items-center justify-center gap-1.5 rounded-mm border border-dashed border-violet-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-mm-purple-dark shadow-sm transition hover:bg-mm-surface disabled:cursor-not-allowed disabled:opacity-40"
+                      [disabled]="!canAttachInStep('delivery')"
+                      (click)="openStepAttachmentPicker('delivery')"
+                    >
+                      <svg lucidePaperclip class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      Anexar comprovante de recebimento (opcional)
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('delivery_confirmed') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2.5 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4 sm:py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                @if (transactionSide === 'buy') {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (comprador):</span>
+                    confirme que recebeu o bem ou o acesso conforme combinado. Só o seu botão aparece aqui; o vendedor confirma o lado dele na sessão dele.
+                    Com os dois ok, o pagamento é liberado ao vendedor.
+                  </p>
+                } @else {
+                  <p class="text-sm leading-snug text-slate-800">
+                    <span class="font-semibold text-amber-950">Agora (vendedor):</span>
+                    confirme que cumpriu a entrega. O comprador confirma o recebimento na sessão dele. Os dois ok encerram a liberação do pagamento.
+                  </p>
+                }
+                @if (transactionSide === 'buy') {
+                  <button
+                    type="button"
+                    [disabled]="flowInteractionDisabled() || buyerConfirmed"
+                    (click)="confirmByBuyer()"
+                    class="flex w-full max-w-sm items-center justify-center gap-2 rounded-mm border-2 px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
+                    [class.border-green-400]="buyerConfirmed"
+                    [class.bg-green-50]="buyerConfirmed"
+                    [class.text-green-900]="buyerConfirmed"
+                    [class.border-violet-300]="!buyerConfirmed"
+                    [class.bg-mm-surface]="!buyerConfirmed"
+                    [class.text-mm-ink]="!buyerConfirmed"
+                  >
+                    @if (buyerConfirmed) {
+                      <span>Confirmado como comprador</span>
+                    } @else {
+                      <span>Confirmo como comprador</span>
+                    }
+                  </button>
+                }
+                @if (transactionSide === 'sell') {
+                  <button
+                    type="button"
+                    [disabled]="flowInteractionDisabled() || sellerConfirmed"
+                    (click)="confirmBySeller()"
+                    class="flex w-full max-w-sm items-center justify-center gap-2 rounded-mm border-2 px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
+                    [class.border-green-400]="sellerConfirmed"
+                    [class.bg-green-50]="sellerConfirmed"
+                    [class.text-green-900]="sellerConfirmed"
+                    [class.border-violet-300]="!sellerConfirmed"
+                    [class.bg-mm-surface]="!sellerConfirmed"
+                    [class.text-mm-ink]="!sellerConfirmed"
+                  >
+                    @if (sellerConfirmed) {
+                      <span>Confirmado como vendedor</span>
+                    } @else {
+                      <span>Confirmo como vendedor</span>
+                    }
+                  </button>
+                }
+                <a
+                  [routerLink]="['/dispute', transactionId]"
+                  [queryParams]="transactionQueryParamsForRouter()"
+                  class="flex w-full items-center justify-center rounded-mm border border-red-200/90 bg-red-50/90 px-3 py-2 text-center text-xs font-medium text-red-800 no-underline shadow-sm transition hover:border-red-300 hover:bg-red-50"
+                >Algo errado? Abrir disputa</a>
+              </div>
+            </div>
+          }
+
+          @case ('released') {
+            <div class="flex w-full min-w-0 justify-center sm:justify-end sm:px-0.5">
+              <div class="w-full min-w-0 max-w-[min(100%,22rem)] space-y-2 rounded-mm rounded-tr-sm border border-amber-200/80 bg-gradient-to-bl from-amber-50 via-white to-violet-50/90 px-3 py-3 shadow-sm sm:px-4">
+                <p class="text-left text-[10px] font-semibold uppercase tracking-wide text-amber-900/80">Assistente</p>
+                <div class="text-center">
+                  <p class="flex justify-center text-green-600" aria-hidden="true">
+                    <svg lucideCircleCheck class="h-8 w-8 shrink-0" aria-hidden="true" />
+                  </p>
+                  <p class="text-sm font-semibold text-green-900">Pronto — o dinheiro foi liberado.</p>
+                  <p class="mt-1 text-xs text-slate-600">A negociação com pagamento protegido terminou. Obrigado por seguir o passo a passo na tela.</p>
+                  @if (!feedbackAlreadySubmitted) {
+                    <button
+                      type="button"
+                      class="mt-3 inline-flex items-center justify-center rounded-mm border border-violet-300 bg-mm-surface px-4 py-2 text-xs font-semibold text-mm-purple-dark transition hover:border-violet-400 hover:bg-violet-50"
+                      (click)="openFeedbackModalIfNeeded()"
+                    >
+                      Avaliar contraparte
+                    </button>
+                  } @else {
+                    <p class="mt-2 text-[11px] text-emerald-700">Sua avaliação já foi enviada.</p>
+                  }
+                  <a routerLink="/dashboard" class="mm-btn-success mt-3 inline-flex px-5 py-2.5 text-xs font-semibold no-underline">Ir ao painel</a>
+                </div>
+              </div>
+            </div>
+          }
+        }
+        </div>
+
+        <input
+          #stepFileInput
+          type="file"
+          class="pointer-events-none absolute h-0 w-0 shrink-0 opacity-0"
+          multiple
+          accept="image/*,application/pdf,.pdf"
+          (change)="onStepFilesSelected($event)"
+          tabindex="-1"
+          aria-hidden="true"
+        />
+
+        <div #chatBottom class="shrink-0"></div>
+      </div>
+
+      @if (inviteAccessBlocked) {
+        <div class="shrink-0 border-t border-amber-100/90 bg-amber-50/50 px-3 py-2 text-center">
+          <p class="text-[11px] text-slate-700">Chat desativado até você abrir um convite válido (use o link completo ou volte ao painel).</p>
+        </div>
+      } @else if (!isFlowLocked()) {
+        <div class="shrink-0 border-t border-violet-100/80 bg-gradient-to-r from-mm-surface/30 to-white px-2 py-2 sm:px-3">
+          <div class="flex items-center gap-1.5 rounded-mm border border-violet-100/90 bg-white px-2 py-1 shadow-sm">
+            <input
+              type="text"
+              [placeholder]="'Mensagem como ' + roleLabelLower() + '...'"
+              class="min-h-11 min-w-0 flex-1 border-0 bg-transparent px-2 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:min-h-10 sm:text-sm"
+              inputmode="text"
+              enterkeyhint="send"
+              [formControl]="draftControl"
+              [class.text-red-700]="draftControl.touched && draftControl.invalid && draftControl.enabled"
+              (keydown.enter)="sendMessage()"
+            />
+            <button
+              type="button"
+              class="grid size-9 shrink-0 place-content-center rounded-mm bg-gradient-to-br from-mm-purple-deep to-mm-purple text-white shadow-md transition hover:opacity-95 active:scale-95 disabled:opacity-40"
+              [disabled]="draftControl.invalid || draftControl.disabled"
+              (click)="sendMessage()"
+              aria-label="Enviar mensagem"
+            >
+              <svg lucideSend class="h-[18px] w-[18px] shrink-0 text-white" aria-hidden="true" />
+            </button>
+          </div>
+          @if (draftControl.touched && draftControl.invalid && draftControl.enabled) {
+            <p class="mt-1 px-1 text-[10px] text-red-600">2 a 2000 caracteres.</p>
+          }
+        </div>
+      } @else {
+        <div class="shrink-0 border-t border-violet-100/80 bg-mm-surface/40 px-3 py-2 text-center">
+          <p class="text-[11px] text-slate-600">Negociação encerrada — conversa e passos abaixo são só para consulta.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <aside
+    class="glass-panel order-2 relative z-0 mx-auto flex w-full max-w-full shrink-0 flex-col overflow-visible p-0 shadow-sm max-sm:max-h-none max-sm:scroll-mt-4 lg:order-none lg:mx-0 lg:h-full lg:min-h-0 lg:max-h-full lg:w-[17.5rem] lg:max-w-[17.5rem] lg:shrink-0 lg:flex-none lg:overflow-hidden lg:self-stretch"
+    aria-label="Resumo da negociação"
+  >
+    <div
+      class="flex min-h-0 flex-1 flex-col px-4 py-4 max-sm:flex-none max-sm:overflow-visible lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overflow-x-hidden lg:overscroll-y-contain mm-touch-scroll"
+    >
+    <div class="shrink-0 rounded-mm border border-violet-100/80 bg-white/80 p-3 shadow-sm">
+      <header class="shrink-0">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Painel da negociação</p>
+        <p class="mt-1 text-sm font-semibold leading-tight text-mm-ink">Visão rápida e progresso em tempo real</p>
+        <p class="mt-1 text-[11px] leading-snug text-slate-500">Tudo o que importa para fechar com segurança.</p>
+      </header>
+      <div class="mt-3 border-t border-violet-100/80 pt-3" role="region" aria-label="Status e progresso">
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-[10px] font-medium uppercase tracking-wide text-slate-500">Status atual</p>
+          <app-status-badge [status]="currentStatus" />
+        </div>
+        <p class="mt-1 text-[10px] text-slate-500">Etapa ativa</p>
+        <p class="text-xs font-semibold text-mm-ink">{{ flowStepTitle() }}</p>
+        <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-violet-100/80">
+          <div
+            class="h-full rounded-full bg-gradient-to-r from-mm-purple-deep via-mm-purple to-mm-accent transition-all duration-300"
+            [style.width.%]="guideProgressPercent()"
+          ></div>
+        </div>
+        <p class="mt-1 text-right text-[10px] tabular-nums text-slate-400">{{ guideProgressPercent() }}%</p>
+      </div>
+    </div>
+
+    <dl class="mt-3 space-y-3">
+      <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
+        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Código da negociação</dt>
+        <dd class="mt-1 break-all font-mono text-[11px] leading-tight text-mm-ink">#{{ transactionId }}</dd>
+        <p class="mt-1 text-[9px] text-slate-400">Acesso: {{ inviteToken }}</p>
+      </div>
+
+      <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
+        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Resumo comercial</dt>
+        <dd class="mt-2 space-y-1.5 text-[11px] text-slate-600">
+          <p class="flex items-start justify-between gap-2"><span>Você</span><strong class="text-right text-mm-ink">{{ asideYouLine() }}</strong></p>
+          <p class="flex items-start justify-between gap-2"><span>Tipo</span><strong class="text-right text-mm-ink">{{ typeLabel() }}</strong></p>
+          <p class="flex items-start justify-between gap-2"><span>Entrega</span><strong class="text-right text-mm-ink">{{ deliveryLabel() }}</strong></p>
+          <p class="flex items-start justify-between gap-2"><span>Convite abre como</span><strong class="text-right text-mm-ink">{{ counterpartyRoleLabel() }}</strong></p>
+          @if (transactionType === 'digital') {
+            <p class="flex items-start justify-between gap-2"><span>Prazo de reclamação</span><strong class="text-right text-mm-ink">{{ securityWindowHours }} h</strong></p>
+          }
+        </dd>
+      </div>
+
+      <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
+        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pagamento e entrega</dt>
+        <dd class="mt-2 space-y-1.5 text-[11px] text-slate-600">
+          <p class="flex items-start justify-between gap-2">
+            <span>Método</span>
+            <strong class="text-right text-mm-ink">
+              @if (selectedEscrowPayment) {
+                {{ escrowPaymentMethodLabel() }}
+              } @else {
+                —
+              }
+            </strong>
+          </p>
+          <p class="flex items-start justify-between gap-2">
+            <span>Pagamento instantâneo</span>
+            <strong class="text-right" [class.text-emerald-700]="paymentQrDataUrl" [class.text-slate-400]="!paymentQrDataUrl">
+              {{ paymentQrDataUrl ? 'Disponível' : 'Ainda não' }}
+            </strong>
+          </p>
+          @if (deliveryQrToken) {
+            <p class="mt-2 rounded border border-dashed border-violet-200 bg-violet-50/60 px-2 py-1.5 font-mono text-[10px] leading-tight text-slate-700">
+              Código de entrega: {{ deliveryQrToken }}
+            </p>
+          }
+        </dd>
+      </div>
+
+      <div class="rounded-mm border border-violet-100/70 bg-white/80 p-2.5 shadow-sm">
+        <dt class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Participantes</dt>
+        <dd class="mt-2 space-y-1.5 text-[10px] leading-tight text-slate-700">
+          <p class="truncate rounded border border-violet-100/70 bg-violet-50/60 px-2 py-1">{{ mutualBuyerCompact() }}</p>
+          <p class="truncate rounded border border-violet-100/70 bg-violet-50/60 px-2 py-1">{{ mutualSellerCompact() }}</p>
+          @if (evidences.length > 0) {
+            <p class="pt-1 text-right text-[10px] font-medium text-mm-ink">{{ evidences.length }} registro(s) anexado(s)</p>
+          }
+        </dd>
+      </div>
+
+    </dl>
+
+    <div class="mt-2 shrink-0 border-t border-violet-100/80 pt-2">
+      <a
+        [routerLink]="['/dispute', transactionId]"
+        [queryParams]="transactionQueryParamsForRouter()"
+        class="flex w-full items-center justify-center rounded-mm border border-red-200/90 bg-red-50/80 px-2 py-1.5 text-center text-[10px] font-medium text-red-800 no-underline shadow-sm transition hover:border-red-300 hover:bg-red-50"
+      >Disputa</a>
+    </div>
+    </div>
+  </aside>
+
+  @if (showConfirmationModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
+      <div class="w-full max-w-sm rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
+        <h3 class="text-base font-semibold text-mm-ink">{{ confirmationModalTitle }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ confirmationModalMessage }}</p>
+        <div class="mt-4 flex items-center justify-end gap-2">
+          <button type="button" class="btn-ghost px-4 py-2 text-xs" (click)="closeConfirmationModal()">
+            Voltar
+          </button>
+          <button type="button" class="btn-danger px-4 py-2 text-xs" (click)="confirmPendingAction()">
+            {{ confirmationModalConfirmLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showFeedbackModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[1px]">
+      <div class="w-full max-w-md rounded-mm-card border border-violet-200/80 bg-white p-4 shadow-2xl">
+        <h3 class="text-base font-semibold text-mm-ink">Como foi negociar com a contraparte?</h3>
+        <p class="mt-1 text-xs leading-relaxed text-slate-600">
+          Sua colaboração na avaliação fortalece a confiança entre os usuários e melhora as próximas negociações.
+          Comentário é opcional.
+        </p>
+
+        <div class="mt-3 flex items-center justify-center gap-8">
+          <button
+            type="button"
+            class="inline-flex h-16 w-16 items-center justify-center rounded-full transition duration-200 hover:scale-110 active:scale-95"
+            [class.bg-emerald-50]="feedbackVote === 'like'"
+            [class.text-emerald-800]="feedbackVote === 'like'"
+            [class.ring-2]="feedbackVote === 'like'"
+            [class.ring-emerald-300]="feedbackVote === 'like'"
+            [class.shadow-md]="feedbackVote === 'like'"
+            [class.shadow-emerald-100]="feedbackVote === 'like'"
+            [class.bg-slate-50]="feedbackVote !== 'like'"
+            [class.text-slate-700]="feedbackVote !== 'like'"
+            (click)="chooseFeedbackVote('like')"
+            aria-label="Avaliar positivamente"
+            title="Gostei da negociação"
+          >
+            <svg
+              lucideThumbsUp
+              class="h-8 w-8 shrink-0 transition"
+              [class.drop-shadow-sm]="feedbackVote === 'like'"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            type="button"
+            class="inline-flex h-16 w-16 items-center justify-center rounded-full transition duration-200 hover:scale-110 active:scale-95"
+            [class.bg-rose-50]="feedbackVote === 'dislike'"
+            [class.text-rose-800]="feedbackVote === 'dislike'"
+            [class.ring-2]="feedbackVote === 'dislike'"
+            [class.ring-rose-300]="feedbackVote === 'dislike'"
+            [class.shadow-md]="feedbackVote === 'dislike'"
+            [class.shadow-rose-100]="feedbackVote === 'dislike'"
+            [class.bg-slate-50]="feedbackVote !== 'dislike'"
+            [class.text-slate-700]="feedbackVote !== 'dislike'"
+            (click)="chooseFeedbackVote('dislike')"
+            aria-label="Avaliar negativamente"
+            title="Não gostei da negociação"
+          >
+            <svg
+              lucideThumbsDown
+              class="h-8 w-8 shrink-0 transition"
+              [class.drop-shadow-sm]="feedbackVote === 'dislike'"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+
+        <label class="mt-3 block text-[11px] font-medium text-slate-600" for="feedback-comment">Comentário/observações (opcional)</label>
+        <textarea
+          id="feedback-comment"
+          [(ngModel)]="feedbackComment"
+          rows="3"
+          maxlength="300"
+          class="mt-1 w-full rounded-mm border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-300"
+          placeholder="Ex.: comunicação rápida, entrega no prazo, etc."
+        ></textarea>
+        <p class="mt-1 text-right text-[10px] text-slate-400">{{ feedbackComment.length }}/300</p>
+
+        <div class="mt-4 flex items-center justify-end gap-2">
+          <button type="button" class="btn-ghost px-4 py-2 text-xs" (click)="closeFeedbackModal()">
+            Depois
+          </button>
+          <button
+            type="button"
+            class="rounded-mm bg-mm-purple px-4 py-2 text-xs font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="!canSubmitFeedback"
+            (click)="submitProfileFeedback()"
+          >
+            Enviar avaliação
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</section>
