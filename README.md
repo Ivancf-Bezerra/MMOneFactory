@@ -1,12 +1,59 @@
 # MMOneFactory
 
-Este repositório publica o site estático em **`docs/`** (GitHub Pages: pasta **`/docs`**, branch `main`).
+Este repositório publica o frontend **MMSITE** (Angular) no GitHub Pages, com artefatos estáticos em `docs/`.
 
-O **código-fonte Angular** (`MMSITE/`) **não** está versionado aqui; mantém-se apenas localmente ou noutro repositório.
+## SDD — Software Design Description (MMSITE)
 
-## Gerar `docs/` a partir do projeto Angular local
+### 1) Objetivo do sistema
 
-Na pasta do projeto Angular (ex. `MMSITE` no teu disco):
+O `MMSITE` implementa a experiência web da plataforma Middleman:
+- autenticação e perfil;
+- abertura de negociação (`/transaction/create`);
+- chat e fluxo de transação com etapas protegidas;
+- dashboard e histórico operacional.
+
+### 2) Contexto e fronteiras
+
+- **Frontend principal:** `MMSITE/` (Angular 19).
+- **Build publicado:** `docs/` (saída estática para GitHub Pages).
+- **Backend/API:** integração por endpoints `/api/v1/*` (mock local disponível em dev).
+- **Fora de escopo deste deploy:** pasta `MMAPI/` (não subir neste fluxo).
+
+### 3) Arquitetura
+
+- **Framework:** Angular standalone + Router.
+- **Organização por feature:** `src/app/features/*` (auth, dashboard, transaction, profile, dispute).
+- **Core compartilhado:** `src/app/core/*` (serviços, interceptors, models, utilitários).
+- **UI e layout:** `src/app/layout/*` e componentes reutilizáveis em `src/app/shared/*`.
+- **Persistência cliente:** `localStorage` e `sessionStorage` para estado de sessão/fluxo.
+
+### 4) Decisões de design
+
+- SPA com foco em fluxo guiado de negociação e redução de fricção operacional.
+- Modo mock para acelerar desenvolvimento local sem dependência imediata de backend real.
+- Build estático em `docs/` para facilitar publicação no GitHub Pages.
+- Rotas suportadas em hospedagem estática com fallback (`404.html`) e configuração de base relativa.
+
+### 5) Dependências de uso
+
+#### Runtime (principais)
+- `@angular/*` (v19)
+- `@lucide/angular` (ícones)
+- `@ngrx/store`, `@ngrx/effects`, `@ngrx/store-devtools`
+- `rxjs`, `zone.js`, `qrcode`
+
+#### Desenvolvimento
+- `@angular/cli`, `@angular-devkit/build-angular`, `typescript`
+- `karma`, `jasmine` (testes padrão Angular)
+- `tailwindcss`, `postcss`, `autoprefixer`
+
+#### Requisitos de ambiente
+- Node.js 20+ (recomendado)
+- npm 10+ (recomendado)
+
+## Build e publicação (somente MMSITE + docs)
+
+### Build de produção para GitHub Pages
 
 ```bash
 cd MMSITE
@@ -14,18 +61,14 @@ npm ci
 npm run build:github-pages
 ```
 
-O comando de build deve escrever o output na pasta **`docs/` na raiz deste repositório** (configuração em `angular.json`: `outputPath` com `../docs`). Depois faz commit e push de `docs/` neste repo.
+Esse comando gera o build otimizado e grava em `../docs` (raiz do repositório), incluindo `404.html` e `.nojekyll`.
 
-**Render / Netlify:** `render.yaml` usa `staticPublishPath: ./docs`.
+### Subir para o GitHub
 
-Se o repositório **não** se chamar `MMOneFactory`, ajusta no `package.json` do projeto Angular o `--base-href /NomeDoRepo/` no script `build:github-pages` para `usuario.github.io/NomeDoRepo/`.
+```bash
+git add MMSITE docs README.md
+git commit -m "docs: atualiza SDD e build do MMSITE"
+git push origin main
+```
 
-### Rotas em hospedagem estática (ex.: `github.io`)
-
-Em subpastas de domínio estático a app pode usar **rotas com hash** (`#/login`, `#/transaction/...`) para o servidor não devolver 404 ao recarregar.
-
-## Outros
-
-- **Comportamento da app:** `/` redireciona para `/login`; sessão ativa em `/login` vai para `/transaction/create`.
-
-Ficheiros de build na **raiz** do repo (fora de `docs/`) **não** devem ser commitados; estão bloqueados no `.gitignore`.
+> Neste fluxo, suba apenas alterações relacionadas ao `MMSITE` e à pasta `docs/`.
